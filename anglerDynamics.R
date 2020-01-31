@@ -14,14 +14,14 @@ actCb <- matrix(NA, 1, Years)
 # 'Utility' - not sure this is the right thing to call this
 Ua <- matrix(0.7, 1, Years) 
 Ub <- matrix(0.3, 1, Years) 
-Usit = 5
+Usit = 5 # this should be rescaled based on a few simulations - we want some anglers to sit out. 
 
 #proportions
 ProAnga <- matrix(NA, 1, Years)  #starting distribution of anglers
 ProAngb <- matrix(NA, 1, Years)  
 ProAngsit <- matrix(NA, 1, Years)
 # preference determination:
-pi <- .7 #preference for walleye (.5 = equal preference, 1 = only walleye)
+pi <- .7 #preference for species A (.5 = equal preference, 1 = only species A)
 # memory term for expected cacth
 lambda = 0.7
 
