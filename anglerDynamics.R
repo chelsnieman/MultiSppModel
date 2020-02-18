@@ -33,7 +33,7 @@ for (i in 1:Years){
   actCb[,i] = rpois(length(actCb[,i]),actCb[,i])
   expCa[,(i+1)] <- lambda*actCa[,i] + (1-lambda)*expCa[,i] #updating expectation
   expCb[,(i+1)] <- lambda*actCb[,i] + (1-lambda)*expCb[,i]
-  Uw[,i] = pi*expCa[i] #weight for species 1
+  Ua[,i] = pi*expCa[i] #weight for species 1
   Ub[,i] = (1-pi)*expCb[i] #weight for species 2
   ProAnga[,i] = Ua[,i]/(Ua[,i]+Ub[,i]+Usit) #how anglers distribute
   ProAngb[,i] = Ub[,i]/(Ua[,i]+Ub[,i]+Usit)
@@ -44,5 +44,14 @@ matplot(ProAngb,type='l',lty=1, ylim=c(0,1))
 matplot(ProAnga, type='l',lty=1, ylim=c(0,1))
 matplot(ProAngsit, type='l',lty=1, ylim=c(0,1))
 
+#plug into model through C = qX*(E*ProAnga) -> ProAng is just a modifier of Effort -
+# determines what percent of total effort is allocated to each species
+      #basically: Aharv and Bharv
+#The utility function s just so we can measure how happy anglers are - some percentage will 
+  #likely not fish - which is expected. 
+# utility is a function of exp catch - determines the choice of fishing and for what species
+#slight concern: current effort model is literally just the angler dynamics
+          # do we want a more complex model of effort (in this, effort is farily static, it
+           #   just switches between species A, species B, and sitting)
 
 
