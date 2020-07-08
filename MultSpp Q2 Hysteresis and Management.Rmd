@@ -1,0 +1,48 @@
+---
+title: 'Q2: Hysteresis and Management'
+author: "Colin Dassow and Chelsey Nieman"
+date: "7/8/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Abstract
+
+# Introduction
+Ecosystem-based management
+Shown to increase system resilience 
+  May be useful in systems where linear management is not effect (Pine et al., 2009) 
+Management of systems that exhibit hysteresis
+  Commercial fisheries examples 
+  Single species examples 
+This model 
+The goal of this study is:
+  (1) to understand the role hysteresis plays in both the type and magnitude of management responses necessary to maintain a system in a desired configuration. 
+  (2) to investigate the role management responses can play in reverting to an alternative configuration. 
+We do this by: 
+  Modeling species-specific responses to regulations and stocking
+  Consideration of optimal strategy and magnitude to maintain system in a desired state
+  With and without hysteresis 
+  Consideration of optimal strategy and magnitude to change system state. 
+  Also with and without hysteresis
+
+# Methods
+## The Model 
+Base model (reference Q1 manuscript)
+Stocking 
+Management (species specific) 
+How we got hysteresis in the system  
+
+## Simulation Space  
+Optimal management scenarios
+
+# Results
+
+# Discussion
+
+# References 
+
+
