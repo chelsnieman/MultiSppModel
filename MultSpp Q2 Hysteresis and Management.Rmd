@@ -3,10 +3,13 @@ title: 'Q2: Hysteresis and Management'
 author: "Colin Dassow and Chelsey Nieman"
 date: "7/8/2020"
 output: word_document
+bibliography: MultispeciesModelCite.bib
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+packages <- c("citr","bibtex","tidyverse","knitr")
 ```
 
 # Abstract
@@ -14,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Introduction
 Ecosystem-based management
 Shown to increase system resilience 
-  May be useful in systems where linear management is not effect (Pine et al., 2009) 
+  May be useful in systems where linear management is not effect [@pine2009] 
 Management of systems that exhibit hysteresis
   Commercial fisheries examples 
   Single species examples 
