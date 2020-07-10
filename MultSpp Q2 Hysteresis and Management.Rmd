@@ -63,6 +63,7 @@ Optimal management scenarios
 #not sure exactly where we want this, in the simulation space or right in the results
 
 #these get reused for both plots below
+tstep=1:300
 h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 
