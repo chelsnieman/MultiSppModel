@@ -1,64 +1,68 @@
-#place to build the species portion of the multispecies fishery model
-#1.17.2020
+# 4.28.20 CD
+# adapted version of the Biggs et al. 2009 model & some code do show how the model produces alternative stable states
+library(deSolve)
+rm(list=ls())
+#parameter definitions
+# qE - harvest, species specific
+# s - survial, species specific
+# cJA - effect of adults of a given species on juveniles of a given species (cover cannibalism or interspecific predation)
+# cJJ - effect of juveniles of one species on juveniles of the other (can be predation or competition)
+# h - rate at which juveniles leave foraging arena for refuge, species specific
+# v - rate at which juveniles enter foraging arena from refuge, species specific
+# f - fecundity, species specific
 
-rm(list = ls())
-setwd("C:/Users/jones/BoxSync/NDstuff/Dissertation/4/MultiSppModel/") #working directory for Colin's computer
 
-#start with a stage-structured model with 2 stages for a single species
-years=100
-A.A=numeric(years)
-A.J=numeric(years)
-B.A=numeric(years)
-B.J=numeric(years)
-
-start=c(500,3000,400,3000)
-
-Amort=.01 #natural mortality
-Bmort=.01 #natural mortality
-Arep=.5 #reproduction
-Brep=.5 #reproduction
-Amat=.2 #maturation
-Bmat=.2 #maturation
-Apred=3 #number of juveniles of B consumbed by A adults each year
-Bpred=3 #number of juveniles of A consumbed by B adults each year
-K.aa=1000 #carrying capacity of A adults
-K.aj=5000 #carrying capacity of A juv
-K.ba=1000 #carrying capacity of B adults
-K.bj=5000 #carrying capacity of B juv
-q.a=.1 #catchability of A
-e.a=1 #effort for A
-q.b=.1 #catchability of B
-e.b=1 #effort for B
-Aharv=0.9 #proportion of the catch harvested for A
-Bharv=0.01 #proportion of the catch harvested for B
-
-A.A[1]=start[1]
-A.J[1]=start[2]
-B.A[1]=start[3]
-B.J[1]=start[4]
-for(i in 1:years){
-  A.A[i+1]=ifelse(A.A[i]+(A.J[i]*Amat-A.A[i]*Amort)*(1-(A.A[i]/K.aa))-(q.a*e.a*A.A[i]*Aharv)<0,
-                  0,
-                  A.A[i]+(A.J[i]*Amat-A.A[i]*Amort)*(1-(A.A[i]/K.aa))-(q.a*e.a*A.A[i]*Aharv))
-  A.J[i+1]=ifelse(A.J[i]+(A.A[i]*Arep-B.A[i]*Bpred)*(1-(A.J[i]/K.aj))<0,
-                  0,
-                  A.J[i]+(A.A[i]*Arep-B.A[i]*Bpred)*(1-(A.J[i]/K.aj)))
-  B.A[i+1]=ifelse(B.A[i]+(B.J[i]*Bmat-B.A[i]*Bmort)*(1-(B.A[i]/K.ba))-(q.b*e.b*B.A[i]*Bharv)<0,
-                  0,
-                  B.A[i]+(B.J[i]*Bmat-B.A[i]*Bmort)*(1-(B.A[i]/K.ba))-(q.b*e.b*B.A[i]*Bharv))
-  B.J[i+1]=ifelse(B.J[i]+(B.A[i]*Brep-A.A[i]*Apred)*(1-(B.J[i]/K.bj))<0,
-                  0,
-                  B.J[i]+(B.A[i]*Brep-A.A[i]*Apred)*(1-(B.J[i]/K.bj)))
-  
-    
+simBiggs<-function(t,y,params){
+  A1<-y[1]
+  A2<-y[2]
+  J1<-y[3]
+  J2<-y[4]
+  with(as.list(params),{
+    dA1dt=-qE1*A1+(s1-1)*A1+s1*J1
+    dA2dt=-qE2*A2+(s2-1)*A2+s2*J2
+    dJ1dt=-cJ1A1*J1*A1-cJ1J2*J2*J1-(cJ1A2*v1*A2*J1)/(h1+v1+cJ1A2*A2)+f1*A1
+    dJ2dt=-cJ2A2*J2*A2-cJ2J1*J1*J2-(cJ2A1*v2*A1*J2)/(h2+v2+cJ2A1*A1)+f2*A2
+    return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
+  })
 }
-abund=data.frame(A.A, A.J, B.A, B.J) #storing the abundances of adults an juveniles at each time step
+times=1:500
+p=c(qE1=1.8,s1=0.5,cJ1A1=0.008,cJ1A2=0.003,cJ1J2=0.001,v1=1,h1=6,f1=2,
+    qE2=1.8,s2=0.5,cJ2A2=0.008,cJ2A1=0.003,cJ2J1=0.001,v2=1,h2=6,f2=2)
+y0=c(50,20,10,10)
+sim=ode(y=y0,times=times,func=simBiggs,parms=p)
+sim[nrow(sim),]
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:5])))
+lines(sim[,1],sim[,3],col="blue")
+lines(sim[,1],sim[,4],lty=2)
+lines(sim[,1],sim[,5],lty=2,col="blue")
 
+### RUNNING OVER A RANGE OF HARVESTS - TEST FOR ALTERNATE STABLE STATES
 
-#visualize output
+store=data.frame(qEs=seq(.05,5,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,200,40,40)
+for(i in 1:nrow(store)){
+  p=c(c(qE1=store$qEs[i],s1=0.5,cJ1A1=0.007,cJ1A2=0.003,cJ1J2=0.001,v1=1,h1=6,f1=1),
+      c(qE2=1.8,s2=0.5,cJ2A2=0.007,cJ2A1=0.003,cJ2J1=0.001,v2=1,h2=6,f2=1))
+  sim=ode(y=y0,times=times,func=simBiggs,parms=p)
+  store$A1[i]=sim[nrow(sim),2]
+  store$A2[i]=sim[nrow(sim),3]
+  store$J1[i]=sim[nrow(sim),4]
+  store$J2[i]=sim[nrow(sim),5]
+}
+store2=data.frame(qEs=seq(.05,5,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(200,10,40,40)
+for(i in 1:nrow(store)){
+  p=c(c(qE1=store2$qEs[i],s1=0.5,cJ1A1=0.007,cJ1A2=0.003,cJ1J2=0.001,v1=1,h1=6,f1=1),
+      c(qE2=1.8,s2=0.5,cJ2A2=0.007,cJ2A1=0.003,cJ2J1=0.001,v2=1,h2=6,f2=1))
+  sim=ode(y=y0,times=times,func=simBiggs,parms=p)
+  store2$A1[i]=sim[nrow(sim),2]
+  store2$A2[i]=sim[nrow(sim),3]
+  store2$J1[i]=sim[nrow(sim),4]
+  store2$J2[i]=sim[nrow(sim),5]
+}
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3])),ylab = "Abundance",xlab = "Harvest (q*E)")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+lines(store2$qEs,store2$A1,lwd=3,lty=3)
+lines(store2$qEs,store2$A2,lwd=3,col='grey',lty=3)
+legend("topright",legend = c("sp 1", "sp 2","run1","run2"), col = c("black","grey","black","black"),lwd=2,lty = c(1,1,1,3),bty="n")
 
-plot(1:nrow(abund), abund$A.A, type = "l", ylab = "Abundance", xlab = "Time", ylim = range(abund))
-lines(1:nrow(abund), abund$A.J, lty=2)
-lines(1:nrow(abund), abund$B.A, lty=1, col="red")
-lines(1:nrow(abund), abund$B.J, lty=2, col="red")
-legend("right", legend = c("A.adult", "A.juv", "B.adult", "B.juv"), lty = c(1,2,1,2), col = c("black", "black", "red", "red"))
