@@ -2,50 +2,68 @@
 title: 'Q2: Hysteresis and Management'
 author: "Colin Dassow and Chelsey Nieman"
 date: "7/8/2020"
-output: word_document
+output: 
+   word_document:
+      reference_docx: reference_format.docx
 bibliography: MultispeciesModelCite.bib
-
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-packages <- c("citr","bibtex","tidyverse","knitr")
+packages <- c("citr","bibtex","tidyverse","knitr","tinytex")
+
 ```
 
 # Abstract
 
 # Introduction
-Ecosystem-based management
-Shown to increase system resilience 
-  May be useful in systems where linear management is not effect [@pine2009] 
-Management of systems that exhibit hysteresis
-  Commercial fisheries examples 
-  Single species examples 
-This model 
-The goal of this study is:
-  (1) to understand the role hysteresis plays in both the type and magnitude of management responses necessary to maintain a system in a desired configuration. 
-  (2) to investigate the role management responses can play in reverting to an alternative configuration. 
-We do this by: 
-  Modeling species-specific responses to regulations and stocking
-  Consideration of optimal strategy and magnitude to maintain system in a desired state
-  With and without hysteresis 
-  Consideration of optimal strategy and magnitude to change system state. 
-  Also with and without hysteresis
+      
+The relationship between hysteresis and fisheries  
+
+Ecosystem-based management  
+   What Ecosystem-based management/adpative management is.  
+Shown to increase system resilience  
+      ecosystem-based management has been shown to increase resilience of systems [@hansen2015]. 
+      May be useful in systems where linear management is not effective [@pine2009].  
+
+Where the literature is at with hysteresis and management:   
+      Commercial fisheries   
+      -hysteresis and regime shift are important considerations in adaptive management in these systems [@steele1996],[@rothschild2004].  
+      - Ecosystem-based management plays an important role in maintaining desired stable-state [@levin2015].  
+      - Efforts to model this in multiple marine fishes [@crowder2008]  
+      - Management has been shown to manage desired stable states of coral reef areas [@blackwood2012]  
+      This model is unqiue in that it looks at hystereis and management in (1) a freshwater system, and (2) a multispecies system in which both species are game fish.  
+This model   
+The goal of this study is:  
+     (1) to understand the role hysteresis plays in both the type and magnitude of management responses necessary to maintain a system in a desired configuration.   
+     (2) to investigate the role management responses can play in reverting to an alternative configuration.   
+We do this by:   
+      Modeling species-specific responses to regulations and stocking  
+      Consideration of optimal strategy and magnitude to maintain system in a desire state  
+      With and without hysteresis   
+      Consideration of optimal strategy and magnitude to change system state.   
+      Also with and without hysteresis  
 
 # Methods
 ## The Model 
-Base model (reference Q1 manuscript)
-Stocking 
-Management (species specific) 
-How we got hysteresis in the system  
+Base model  
+Stocking   
+Management (species specific)   
+How we got hysteresis in the system    
 
 ## Simulation Space  
-Optimal management scenarios
+Optimal management scenarios   
 
 # Results
-
+Responses to regulations and stocking (maintain system state)  
+   - optimal strategy and magnitude  
+   - influence of hysteresis  
+   
+Responses to regulations and stocking (maintain system state)  
+   - optimal strategy and magnitude  
+   - influence of hysteresis   
+   
 # Discussion
 
-# References 
-
+# References
 
