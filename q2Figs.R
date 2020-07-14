@@ -3,6 +3,12 @@ library(deSolve)
 library(ggplot2)
 library(ggpubr)
 rm(list=ls())
+tstep=1:300
+
+
+####  BASIC MODEL BEHAVIOR ####
+
+
 
 #approx funs for changing parms through time
 qE1Fun=approxfun(x=tstep,y=c(seq(0,by=0.1111,length.out = 113),rep(0,187)))
@@ -75,8 +81,8 @@ for(i in 1:nrow(dfwo)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0,cJ1J2=0,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0,cJ2J1=0,v2=1,f2=2)
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
   y0=c(10,10,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo$A1[i]=sim[nrow(sim)-1,2]
@@ -97,6 +103,45 @@ vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A2))+
 #comparing with and without hysteresis plots together using cowplot package
 dev.new()
 ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
+
+
+#### NON-EQUILIBRIUM TRY ####
+#thinking of a new way to show the effects of hysteresis on management outcomes using plots somewhat like Biggs. Goal is to start system in an undesirable state, see what amount of stocking is necessary to push it over the edge to a desirable state. Then start system in a desirable state and see what amount of harvest can be tolerated while still staying in that state? Or what combo of regs and stocking?
+
+
+#### WITH HYSTERESIS
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 100),rep(0,200)))
+qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1,f2=2)
+y0=c(100,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+lines(sim[,1],qE1Fun(sim[,1]),lty=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+
+#### WITHOUT HYSTERESIS
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 100),rep(0,200)))
+qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
+    s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
+y0=c(100,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+lines(sim[,1],qE1Fun(sim[,1]),lty=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
 
 #### OPTIM FUNC ####
 source('q2Func.R')

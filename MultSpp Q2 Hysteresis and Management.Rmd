@@ -9,11 +9,10 @@ bibliography: MultispeciesModelCite.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
 packages <- c("citr","bibtex","tidyverse","knitr","tinytex")
 
 #some other packages and code to be used throughout the document
-# Colin setting his working directory setwd("C:/Users/jones/BoxSync/NDstuff/Dissertation/4/MultiSppModel")
+# Colin setting his working directory so he can source the function that holds the model we'll run. We could always set up a code chunk here to hold that instead of sourcing another script. setwd("C:/Users/jones/BoxSync/NDstuff/Dissertation/4/MultiSppModel")
 library(deSolve)
 library(ggpubr)
 source("q2Func.R")
@@ -30,6 +29,10 @@ Ecosystem-based management
 Shown to increase system resilience  
       ecosystem-based management has been shown to increase resilience of systems [@hansen2015]. 
       May be useful in systems where linear management is not effective [@pine2009].  
+
+Recreational angling has a major impact on the ecology of freshwater ecosystems and is likely to structure community dynamics through selective harvest of certain individuals and species from the system **(citation)**. In recognition of the impact anglers have on freshwater fish communities, ecosystem-based management, adaptive management, and safe operating spaces have all been invoked in an effort to better manage freshwater resources. A central theme of these strategies is a holistic view of the ecosystems we manage and a rejection of single species management strategies applied broadly in favor of flexibility that allows managers to consider the full context of the systems they work in and tailor their actions appropriately. Current work to incorporate ecosystem-based management has focused on ecosystem change, such as climate change, and management strategies to maintain stable states of a system in light of ecosystem change[@Liu2015].However, some work has been done which focuses on other potential drivers of regime shifts. One drive of particular interest in fisheries is potential for harvest driven regime shifts[@steele1996],[@rothschild2004]. 
+
+Harvest driven regime shifts in fisheries have been studied in commercial and marine fisheries when ecosystem-based management has been used [@oken2016],[@essington2015]. The recognition of the role interspecific interaction between species of commercial importance, and the hysteretic behavior that follows, has helped foster the adoption of ecosystem-based management. Crowder et al. (2008) has explored the simultaneous impacts of multiple fished species on marine systems. This type of ecosystem-based management plays an import role in maintaining a desired stable state, often in the form of a specific fish community structure. In freshwater systems however, there has been limited focus on the harvest of multiple interacting species and the consequences it has for maintaining a desire stable state in the system. The hysteretic behaviors of many freshwater communities have, to date, focused on models with a single harvested species while in reality most freshwater systems are home to multiple harvested fish species which often interact with each other. 
 
 Where the literature is at with hysteresis and management:   
       Commercial fisheries   
@@ -56,10 +59,60 @@ Stocking
 Management (species specific)   
 How we got hysteresis in the system    
 
-## Simulation Space  
+## Simulation Space 
+
+### Figure to show basic model behavior
+
+```{r, include=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.}
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "Abundance",xlab = "Species 1 Harvest (q*E)")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+lines(store2$qEs,store2$A1,lwd=3,lty=3)
+lines(store2$qEs,store2$A2,lwd=3,col='grey',lty=3)
+legend("topright",legend = c("sp 1", "sp 2","sp2>sp1","sp1>sp2"), col = c("black","grey","black","black"),lwd=2,lty = c(1,1,1,3),bty="n")
+
+
+```
+
 Optimal management scenarios   
 
-```{r, cash.comments=FALSE}
+```{r, include=FALSE, cash=TRUE, cash.comments=FALSE, fig.show='hide'}
 #not sure exactly where we want this, in the simulation space or right in the results
 
 #these get reused for both plots below
@@ -131,12 +184,70 @@ b=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A1))+
 ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
 #this plot is a start at least, the point here is that when the species interact (hysteresis present) low levels of stocking at any harvest rate aren't enough to keep the system in a state where A1 dominates. (right now I'm using A1 abundance at my way of telling who dominates but it's not quite right I don't think. It'd be easy enough to pull different info out of the model runs if we wanted.)
 ```
+
+````{r, echo=FALSE, cash=TRUE, cash.comments=F, fig.show='hide'}
+
+#another panel plot that focuses on dynamics through time (instead of equilibrium) similar to Biggs
+#### WITH HYSTERESIS and a state flip
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 100),rep(0,200)))
+qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1,f2=2)
+y0=c(100,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+# with hysteresis and not state flip
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.73,length.out = 100),rep(0,200)))
+sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#### WITHOUT HYSTERESIS and harv that should flip states (rate matches that above)
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 100),rep(0,200)))
+qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
+    s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
+y0=c(100,10,0,0)
+
+#without hysteresis and a harvest level that shouldn't flip states (matching w/ hyst. model above)
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.73,length.out = 100),rep(0,200)))
+sim4=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#plot shows top
+par(mfrow=c(2,2))
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+lines(sim[,1],qE1Fun(sim[,1]),lty=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
+lines(sim2[,1],sim2[,3],col='black',lwd=2)
+lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+sim3=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+plot(sim3[,1],sim3[,2],type='l',ylim=c(0,max(sim3[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
+lines(sim3[,1],sim3[,3],col='black',lwd=2)
+lines(sim3[,1],qE1Fun(sim3[,1]),lty=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+plot(sim4[,1],sim4[,2],type='l',ylim=c(0,max(sim4[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
+lines(sim4[,1],sim4[,3],col='black',lwd=2)
+lines(sim4[,1],qE1Fun(sim4[,1]),lty=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+
+````
 # Results
 Responses to regulations and stocking (maintain system state)  
    - optimal strategy and magnitude  
    - influence of hysteresis  
    
-Responses to regulations and stocking (maintain system state)  
+Responses to regulations and stocking (change system state)  
    - optimal strategy and magnitude  
    - influence of hysteresis   
    
