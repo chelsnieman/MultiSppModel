@@ -30,6 +30,12 @@ Ecosystem-based management
 Shown to increase system resilience  
       ecosystem-based management has been shown to increase resilience of systems [@hansen2015]. 
       May be useful in systems where linear management is not effective [@pine2009].  
+      Managing systems that are subject to regime shifts - magnitude of management response matters [@biggs2009]
+
+Cultivation and Depensation.  
+      Some species may be able to cultivate ideal conditions for themselves by having competitive advantage or consuming juveniles of other species [@walters2001].  
+      Depensatory processes can occur when fishing reduces the adult population [@walters2001].  
+      How much do we want to focus on cultivation-depensation?   
 
 Where the literature is at with hysteresis and management:   
       Commercial fisheries   
