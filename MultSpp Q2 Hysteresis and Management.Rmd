@@ -2,9 +2,7 @@
 title: 'Q2: Hysteresis and Management'
 author: "Colin Dassow and Chelsey Nieman"
 date: "7/8/2020"
-output: 
-   word_document:
-      reference_docx: reference_format.docx
+output: word_document
 bibliography: MultispeciesModelCite.bib
 ---
 
