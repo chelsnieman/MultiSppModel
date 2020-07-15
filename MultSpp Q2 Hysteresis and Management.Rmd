@@ -69,7 +69,8 @@ How we got hysteresis in the system
 
 ### Figure to show basic model behavior
 
-```{r, include=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.}
+```{r, include=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.'}
+tstep=1:300
 store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
 y0=c(100,10,0,0)
 for(i in 1:nrow(store)){
