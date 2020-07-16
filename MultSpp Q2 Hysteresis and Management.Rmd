@@ -2,8 +2,11 @@
 title: 'Q2: Hysteresis and Management'
 author: "Colin Dassow and Chelsey Nieman"
 date: "7/8/2020"
-output: word_document
+output: 
+  word_document:
+    fig_caption: true
 bibliography: MultispeciesModelCite.bib
+
 ---
 
 ```{r setup, include=FALSE}
@@ -18,39 +21,7 @@ source("q2Func.R")
 
 # Abstract
 
-# Introduction
-      
-The relationship between hysteresis and fisheries  
-
-Ecosystem-based management  
-   What Ecosystem-based management/adpative management is.  
-Shown to increase system resilience  
-      ecosystem-based management has been shown to increase resilience of systems [@hansen2015]. 
-      May be useful in systems where linear management is not effective [@pine2009].  
-      Managing systems that are subject to regime shifts - magnitude of management response matters [@biggs2009]
-
-Cultivation and Depensation.  
-      Some species may be able to cultivate ideal conditions for themselves by having competitive advantage or consuming juveniles of other species [@walters2001].  
-      Depensatory processes can occur when fishing reduces the adult population [@walters2001].  
-      How much do we want to focus on cultivation-depensation?   
-
-Where the literature is at with hysteresis and management:   
-      Commercial fisheries   
-      -hysteresis and regime shift are important considerations in adaptive management in these systems [@steele1996],[@rothschild2004].  
-      - Ecosystem-based management plays an important role in maintaining desired stable-state [@levin2015].  
-      - Efforts to model this in multiple marine fishes [@crowder2008]  
-      - Management has been shown to manage desired stable states of coral reef areas [@blackwood2012]  
-      This model is unique in that it looks at hysteresis and management in (1) a freshwater system, and (2) a multispecies system in which both species are game fish.  
-This model   
-The goal of this study is:  
-     (1) to understand the role hysteresis plays in both the type and magnitude of management responses necessary to maintain a system in a desired configuration.   
-     (2) to investigate the role management responses can play in reverting to an alternative configuration.   
-We do this by:   
-      Modeling species-specific responses to regulations and stocking  
-      Consideration of optimal strategy and magnitude to maintain system in a desire state  
-      With and without hysteresis   
-      Consideration of optimal strategy and magnitude to change system state.   
-      Also with and without hysteresis  
+# Introduction  
 
 Recreational angling has a major impact on the ecology of freshwater ecosystems and is likely to structure community dynamics through selective harvest of certain individuals and species from the system **(citation)**. In recognition of the impact anglers have on freshwater fish communities, ecosystem-based management, adaptive management, and safe operating spaces have all been invoked in an effort to better manage freshwater resources. A central theme of these strategies is a holistic view of the ecosystems we manage and a rejection of single species management strategies applied broadly in favor of flexibility that allows managers to consider the full context of the systems they work in and tailor their actions appropriately. Current work to incorporate ecosystem-based management has focused on ecosystem change, such as climate change, and management strategies to maintain stable states of a system in light of ecosystem change [@liu2015]. However, some work has been done which focuses on other potential drivers of regime shifts. One driver of particular interest in fisheries is potential for harvest driven regime shifts[@steele1996; @rothschild2004]. 
 
@@ -60,9 +31,7 @@ We expand on a model presented in @biggs2009 and present here a two species, sta
 
 # Methods
 
-## The Model 
-
-### Base model
+## Base model
 
 We used a stage structured, fishery model from @biggs2009. Their original model contained trophic triangle dynamics between a harvested sport fish with juvenile and adult stages, and a single stage planktivore fish that was not part of the fishery. The model also contains basic foraging arena dynamics where juvenile sportfish and planktivores move between the foraging arena and refuge. In this model adult sportfish can prey upon their own juveniles and planktivores when they are in the foraging arena. Planktivores can prey on juvenile sportfish in both the refuge and the foraging arena. Harvest rate and the amount of refuge available to fish are both externally controlled.
 
@@ -72,14 +41,23 @@ $$\frac{dJ_1}{dt} = -c_{J_1,A_1} J_1 A_1 - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_
 The model displays hysteretic behavior typical of systems were competing species have limited more strongly by each other than by themselves. This manifests itself in what is typically called a 'priority effect' where the initial abundance is all the determines which species dominates. Here, the more abundant species is able to cultivate conditions for itself through predation on and competition with juveniles of the opposite species. The equilibrium abundances of the two competing species will depend on both the strength of harvest on each species and the strength of their effects on each other. When the species limit themselves more than they limit each other there is only one stable equilibrium point and hysteresis is gone from the system. 
 
 
+## Simulations 
+Simulations were run using the 'deSolve' package in R [@rcoreteam2020; @soetaert2010]. *then I'm guessing we want to say something about what parm values were used in the simulations and link to a table with them which will probably be supplemental info?* *I think we can make a table in rmd that will auto populate parameter values in the document iteself, also, if parameters arent variable, we might want it in the main document?*
+*Here, I think we should list all the simulations we ran and say why - then just show the different oens in the results*
+
 ### Stocking
 Stocking as included in our version of the @biggs2009 [2009] model through the term $+\epsilon$. This stocking takes the form of a yearly addition of a number juveniles to the system. 
 
 ### Management 
 In our model managers can effect the system through setting harvest rate to a given level (*Note to us: this results in a proportion of the population removed each time step, at smaller pop size fewer fish are removed and vis versa*). This can be set as a constant level across time or can be allowed to vary between years. Similarly, stocking of juveniles by managers can be held constant through time or allowed to vary through time. A third management option which we do not address here is through improvements in refuge ($h$) availability leading to increased juvenile survival. 
 
-### Figure to show basic model behavior
-```{r, include=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.'}
+
+# Results
+## Base Model
+*Discuss the base model and how it worked out for us*
+This model shows...
+
+```{r, echo=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Figure 1. Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.'}
 tstep=1:300
 store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
 y0=c(100,10,0,0)
@@ -127,15 +105,11 @@ legend("topright",legend = c("sp 1", "sp 2","sp2>sp1","sp1>sp2"), col = c("black
 
 ```
 
-
-## Simulations 
-Simulations were run using the 'deSolve' package in R [@rcoreteam2020; @soetaert2010]. *then I'm guessing we want to say something about what parm values were used in the simulations and link to a table with them which will probably be supplemental info?*
-
-
-
-Optimal management scenarios   
-
-```{r, include=FALSE, cash=TRUE, cash.comments=FALSE, fig.show='hide'}
+###Impact of stocking on system dynamics
+   - optimal strategy and magnitude  
+   - influence of hysteresis    
+   
+```{r,echo=FALSE, cash=TRUE, cash.comments=F, fig.cap="Figure 2. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis"}
 #not sure exactly where we want this, in the simulation space or right in the results
 
 #these get reused for both plots below
@@ -207,8 +181,10 @@ b=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A1))+
 ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
 #this plot is a start at least, the point here is that when the species interact (hysteresis present) low levels of stocking at any harvest rate aren't enough to keep the system in a state where A1 dominates. (right now I'm using A1 abundance at my way of telling who dominates but it's not quite right I don't think. It'd be easy enough to pull different info out of the model runs if we wanted.)
 ```
-
-````{r, echo=FALSE, cash=TRUE, cash.comments=F, fig.show='hide'}
+###Impact of Managment on system dyanmics  
+   - optimal strategy and magnitude  
+   - influence of hysteresis      
+````{r, echo=FALSE, cash=TRUE, cash.comments=F, fig.cap='Figure 3. dynamics through time'}
 
 #another panel plot that focuses on dynamics through time (instead of equilibrium) similar to Biggs
 #### WITH HYSTERESIS and a state flip
@@ -265,16 +241,21 @@ lines(sim4[,1],qE1Fun(sim4[,1]),lty=2)
 legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
 
 ````
-# Results
-Responses to regulations and stocking (maintain system state)  
-   - optimal strategy and magnitude  
-   - influence of hysteresis  
-   
-Responses to regulations and stocking (change system state)  
-   - optimal strategy and magnitude  
-   - influence of hysteresis   
-   
+
 # Discussion
+Impact of hysteresis in our model  
+extrapolate to freshwater fish dynamics  
+   - How our model is/is not a good representation of freshwater systems  
+   -What is missing from our model.   
+Optimal Management Strategies   
+  - What did we learn from comparing stocking and controlling harvest?  
+How can this be used by managers  
+  - Strategies for maintaining a desired stable state  
+Future work   
+  - Ground truth this model with empirical data   
+  - Think about how angler dynamics can impact fisheries outcomes   
+*I'm just adding these to show that the need to understand these is there (and to put a plug for our other two papers)*  
+Conclusions
 
 # References
 
