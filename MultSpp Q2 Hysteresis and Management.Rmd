@@ -25,7 +25,7 @@ source("q2Func.R")
 
 Recreational angling has a major impact on the ecology of freshwater ecosystems and is likely to structure community dynamics through selective harvest of certain individuals and species from the system **(citation)**. In recognition of the impact anglers have on freshwater fish communities, ecosystem-based management, adaptive management, and safe operating spaces have all been invoked in an effort to better manage freshwater resources. A central theme of these strategies is a holistic view of the ecosystems we manage and a rejection of single species management strategies applied broadly in favor of flexibility that allows managers to consider the full context of the systems they work in and tailor their actions appropriately **(citation)**. 
 
-Regime shifts are likely to have drastic impacts on aquatic systems and the recretaional fisheries that rely on these systems. While increased resilience has been shown to decrease the likelihood of rapid shifts in the stable state of a system [@scheffer2001], many of these regime shifts are initiated by drivers that are not ecologically-driven. Current work to incorporate ecosystem-based management has focused on ecosystem change, such as climate change, and management strategies to maintain stable states of a system in light of ecosystem change [@liu2015]. However, some work has been done which focuses on other potential drivers of regime shifts. One driver of particular interest in fisheries is potential for harvest driven regime shifts[@steele1996; @rothschild2004].
+Regime shifts are likely to have drastic impacts on aquatic systems and the recreational fisheries that rely on these systems. While increased resilience has been shown to decrease the likelihood of rapid shifts in the stable state of a system [@scheffer2001], many of these regime shifts are initiated by drivers that are not ecologically-driven. Current work to incorporate ecosystem-based management has focused on ecosystem change, such as climate change, and management strategies to maintain stable states of a system in light of ecosystem change [@liu2015]. However, some work has been done which focuses on other potential drivers of regime shifts. One driver of particular interest in fisheries is potential for harvest driven regime shifts[@steele1996; @rothschild2004].
 
 Harvest driven regime shifts in fisheries have been studied in commercial and marine fisheries when ecosystem-based management has been implemented [@oken2016; @essington2015]. The recognition of the role interspecific interaction between species, and the hysteretic behavior that follows, has helped foster the adoption of ecosystem-based management [@walters2001; @blackwood2012]. @crowder2008 has explored the simultaneous impacts of multiple fished species on marine systems. This type of ecosystem-based management plays an import role in maintaining a desired stable state, often in the form of a specific fish community structure. This stands in contrast to more traditional management decisions which take a linear view of the system (e.g. fish population is over exploited so managers reduce mortality or stock in response). Instances where these simple solutions have had no effect, or even a negative effect, are abundant and demonstrate a need to consider alternative stable states and the hysteretic behavior that is often present in the complex aquatic communities we study [@pine2009]. One of the commonly hypothesized reasons for these counterintuitive responses to management actions was formalized as 'cultivation-depensation' effects by @walters2001. They describe how intraguild predation can lead to alternative, self-reinforcing, states that can be transitioned between through the intensity of harvest on the adults of the top predator species which is an intraguild predator with the forage fish species. Cultivation-depensation mechanisms have been empirically demonstrated in marine fisheries resulting in alternative stable states, thereby reducing the ability for recovery of some exploited species [@gardmark2015]. In freshwater systems however, there has been limited focus on the effects of harvesting multiple interacting species and the consequences it has for maintaining a desire stable state in the system. The hysteretic behaviors of many freshwater communities have, to date, focused on 'trophic triangle' models where a single harvested species is an intraguild predator with second species that is not part of the fishery, while in reality most freshwater systems are home to multiple harvested fish species which often interact with each other [@walters2001; @biggs2009]. 
 
@@ -55,9 +55,11 @@ In our model managers can effect the system through setting harvest rate to a gi
 
 
 # Results
-## Base Model
+## Base Model Behavior
 *Discuss the base model and how it worked out for us*
-This model shows...
+Discuss, and maybe include a figure that show how the Biggs model is nested in our model and represents a species parameterization of our model. Our model is slightly more general/flexible because we allow for harvest on both species. *I can make a figure that shows how we can reproduce Bigg's results*
+
+This model shows... (*Here I'm imagining a figure that shows how our version of the biggs model can, in it's most basic form, produce alternative stable states. *)
 
 ```{r, echo=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Figure 1. Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.'}
 tstep=1:300
@@ -107,11 +109,48 @@ legend("topright",legend = c("sp 1", "sp 2","sp2>sp1","sp1>sp2"), col = c("black
 
 ```
 
+
+*here I think we can include this plot which looks at one run of the model through time to show how management intervention even one year too late can lead to a regime shift. Maybe this replaces the plot above where we run the model to euqilibrium across a range of parms values or maybe it's worth having both of these.*
+```{r, echo=F,cache=T}
+#### figure 1 ####
+
+# mangement intervention in time
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 94),rep(0,206)))
+qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1,f2=2)
+y0=c(100,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#intervention one year later has no effect
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 95),rep(0,205)))
+sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#plotting
+par(mfcol=c(2,1), mar=c(1,1,1,1), oma=c(4,4,1,1))
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+lines(sim[,1],qE1Fun(sim[,1]),lty=2)
+text(x=225, y=100, labels = "94 years of harvest \nbefore intervention", cex=0.75)
+legend("topleft", legend = c("sp1","sp2", "harvest rate"), col = c('grey','black','black'),lty = c(1,1,2),lwd=2,bty = "n")
+plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim2[,1],sim2[,3],col='black',lwd=2)
+lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
+text(x=225, y=100, labels = "95 years of harvest \nbefore intervention", cex=0.75)
+mtext("Year", side = 1, outer = T, line = 2.5)
+mtext("Population Size", side = 2, outer = T, line = 2.5)
+```
+
 ###Impact of stocking on system dynamics
    - optimal strategy and magnitude  
    - influence of hysteresis    
    
-```{r,echo=FALSE, cash=TRUE, cash.comments=F, fig.cap="Figure 2. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis"}
+```{r,echo=FALSE, cache==TRUE, cache.comments=F, fig.cap="Figure 2. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis", eval=F}
 #not sure exactly where we want this, in the simulation space or right in the results
 
 #these get reused for both plots below
@@ -183,9 +222,19 @@ b=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A1))+
 ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
 #this plot is a start at least, the point here is that when the species interact (hysteresis present) low levels of stocking at any harvest rate aren't enough to keep the system in a state where A1 dominates. (right now I'm using A1 abundance at my way of telling who dominates but it's not quite right I don't think. It'd be easy enough to pull different info out of the model runs if we wanted.)
 ```
+
+```{r, cache=T, fig.dim=c(7,7), fig.cap="Fig X. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1}
+setwd("~/../BoxSync/NDstuff/Dissertation/2/scripts_data")
+load("20-07-2020_0805_outChunk.RData")
+plot(outChunk[[1]])
+plot(outChunk[[3]])
+marginalPlot(outChunk[[3]], prior = T)
+
+```
 ###Impact of Managment on system dyanmics  
    - optimal strategy and magnitude  
-   - influence of hysteresis      
+   - influence of hysteresis    
+   
 ````{r, echo=FALSE, cash=TRUE, cash.comments=F, fig.cap='Figure 3. dynamics through time'}
 
 #another panel plot that focuses on dynamics through time (instead of equilibrium) similar to Biggs
