@@ -23,7 +23,7 @@ source("q2Func.R")
 
 # Introduction  
 
-Recreational angling has a major impact on the ecology of freshwater ecosystems and is likely to structure community dynamics through selective harvest of certain individuals and species from the system **(citation)**. In recognition of the impact anglers have on freshwater fish communities, ecosystem-based management, adaptive management, and safe operating spaces have all been invoked in an effort to better manage freshwater resources. A central theme of these strategies is a holistic view of the ecosystems we manage and a rejection of single species management strategies applied broadly in favor of flexibility that allows managers to consider the full context of the systems they work in and tailor their actions appropriately **(citation)**. 
+Recreational angling has a major impact on the ecology of freshwater ecosystems and is likely to structure community dynamics through selective harvest of certain individuals and species from the system [@curry2003]. In recognition of the impact anglers have on freshwater fish communities, ecosystem-based management, adaptive management, and safe operating spaces have all been invoked in an effort to better manage freshwater resources. A central theme of these strategies is a holistic view of the ecosystems we manage and a rejection of single species management strategies applied broadly in favor of flexibility that allows managers to consider the full context of the systems they work in and tailor their actions appropriately [@collie2016]. 
 
 Regime shifts are likely to have drastic impacts on aquatic systems and the recreational fisheries that rely on these systems. While increased resilience has been shown to decrease the likelihood of rapid shifts in the stable state of a system [@scheffer2001], many of these regime shifts are initiated by drivers that are not ecologically-driven. Current work to incorporate ecosystem-based management has focused on ecosystem change, such as climate change, and management strategies to maintain stable states of a system in light of ecosystem change [@liu2015]. However, some work has been done which focuses on other potential drivers of regime shifts. One driver of particular interest in fisheries is potential for harvest driven regime shifts[@steele1996; @rothschild2004].
 
@@ -42,24 +42,26 @@ $$\frac{dA_1}{dt} = -qE_1 A_1 + (s_1-1) A_1 + s_1J_1$$
 $$\frac{dJ_1}{dt} = -c_{J_1,A_1} J_1 A_1 - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1+\epsilon_1$$
 The model displays hysteretic behavior typical of systems were competing species have limited more strongly by each other than by themselves. This manifests itself in what is typically called a 'priority effect' where the initial abundance is all the determines which species dominates. Here, the more abundant species is able to cultivate conditions for itself through predation on and competition with juveniles of the opposite species. The equilibrium abundances of the two competing species will depend on both the strength of harvest on each species and the strength of their effects on each other. When the species limit themselves more than they limit each other there is only one stable equilibrium point and hysteresis is gone from the system. 
 
-
 ## Simulations 
-Simulations were run using the 'deSolve' package in R [@rcoreteam2020; @soetaert2010]. *then I'm guessing we want to say something about what parm values were used in the simulations and link to a table with them which will probably be supplemental info?* *I think we can make a table in rmd that will auto populate parameter values in the document iteself, also, if parameters arent variable, we might want it in the main document?*
-*Here, I think we should list all the simulations we ran and say why - then just show the different oens in the results*
 
-### Stocking
-Stocking as included in our version of the @biggs2009 [2009] model through the term $+\epsilon$. This stocking takes the form of a yearly addition of a number juveniles to the system. 
+Simulations were run using the 'deSolve' package in R [@rcoreteam2020; @soetaert2010]. We varied management measures of stocking and harvest rate within the system in order to understand the impact of management on the maintenance of alternate stable states. Stocking as included in our version of the @biggs2009 [2009] model through the term $+\epsilon$. This stocking takes the form of a yearly addition of a number juveniles to the system. In our model managers can effect the system through setting harvest rate to a given level (*Note to us: this results in a proportion of the population removed each time step, at smaller pop size fewer fish are removed and vis versa*). This can be set as a constant level across time or can be allowed to vary between years. Similarly, stocking of juveniles by managers can be held constant through time or allowed to vary through time. A third management option which we do not address here is through improvements in refuge ($h$) availability leading to increased juvenile survival. 
 
-### Management 
-In our model managers can effect the system through setting harvest rate to a given level (*Note to us: this results in a proportion of the population removed each time step, at smaller pop size fewer fish are removed and vis versa*). This can be set as a constant level across time or can be allowed to vary between years. Similarly, stocking of juveniles by managers can be held constant through time or allowed to vary through time. A third management option which we do not address here is through improvements in refuge ($h$) availability leading to increased juvenile survival. 
-
+```{r,echo=FALSE, cash=TRUE, cash.comments=F}
+#This table populates parameter values - not formatted super nice yet. - can throw this in the supplement if we want it there. 
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+params <- as.data.frame(p)
+colnames(params) <- "Value"
+knitr::kable(params, caption="Paramater Values",  col.names = NA, row.names = NA)
+```
+*Here, I think we should list all the simulations we ran and say why - then just show the different ones in the results*
 
 # Results
 ## Base Model Behavior
 *Discuss the base model and how it worked out for us*
-Discuss, and maybe include a figure that show how the Biggs model is nested in our model and represents a species parameterization of our model. Our model is slightly more general/flexible because we allow for harvest on both species. *I can make a figure that shows how we can reproduce Bigg's results*
+Discuss, and maybe include a figure that show how the Biggs model is nested in our model and represents a species parameterization of our model. Our model is slightly more general/flexible because we allow for harvest on both species. *I can make a figure that shows how we can reproduce Bigg's results* *I am not super sure that we need it? Let's keep it in mind, but I think that if we just illustrate our model's behavior that might be enough for this paper?*
 
-This model shows... (*Here I'm imagining a figure that shows how our version of the biggs model can, in it's most basic form, produce alternative stable states. *)
+This model shows the presence of alternative stable states. These states are driven by cultivation-depensation throuh **XX** (Figure 1). When initial abundance of species 1 is high and species 2 is low, **XX** stable state occurs. However, when we alternate these, we find an alternative stable state in which **XX** which occurs at higher levels of harvest. 
 
 ```{r, echo=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Figure 1. Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.'}
 tstep=1:300
@@ -109,9 +111,9 @@ legend("topright",legend = c("sp 1", "sp 2","sp2>sp1","sp1>sp2"), col = c("black
 
 ```
 
-
-*here I think we can include this plot which looks at one run of the model through time to show how management intervention even one year too late can lead to a regime shift. Maybe this replaces the plot above where we run the model to euqilibrium across a range of parms values or maybe it's worth having both of these.*
-```{r, echo=F,cache=T}
+Temporal factors and the timing of management interventions were found to play an important role in maintenance of a stable state. Here, we found that one year of timing difference in management could result in differing stable states, resulting in dominance of alternative species within the system (Figure 2). 
+*here I think we can include this plot which looks at one run of the model through time to show how management intervention even one year too late can lead to a regime shift. Maybe this replaces the plot above where we run the model to euqilibrium across a range of parms values or maybe it's worth having both of these.* *I think its worth including both for now - it's interesting that just one year difference can result in such a big difference. It might be something very much worth noting.* **If we do keep it, we should add a bit to the intro that discusses timing of management and what influence that plays.** 
+```{r, echo=F,cache=T, fig.cap='Figure 2. Temporal influence of management interventions'}
 #### figure 1 ####
 
 # mangement intervention in time
@@ -150,7 +152,7 @@ mtext("Population Size", side = 2, outer = T, line = 2.5)
    - optimal strategy and magnitude  
    - influence of hysteresis    
    
-```{r,echo=FALSE, cache==TRUE, cache.comments=F, fig.cap="Figure 2. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis", eval=F}
+```{r,echo=FALSE, cache==TRUE, cache.comments=F, fig.cap="Figure 3. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis", eval=F}
 #not sure exactly where we want this, in the simulation space or right in the results
 
 #these get reused for both plots below
@@ -429,6 +431,7 @@ legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2
 
 # Discussion
 Impact of hysteresis in our model  
+How timing of management and stocking are important factors to consider.   
 extrapolate to freshwater fish dynamics  
    - How our model is/is not a good representation of freshwater systems  
    -What is missing from our model.   
@@ -444,4 +447,6 @@ Future work
 Conclusions
 
 # References
+
+# Supplemental 
 
