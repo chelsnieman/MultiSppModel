@@ -224,11 +224,145 @@ ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
 ```
 
 ```{r, cache=T, fig.dim=c(7,7), fig.cap="Fig X. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1}
-setwd("~/../BoxSync/NDstuff/Dissertation/2/scripts_data")
-load("20-07-2020_0805_outChunk.RData")
-plot(outChunk[[1]])
-plot(outChunk[[3]])
-marginalPlot(outChunk[[3]], prior = T)
+##### HEATMAPS #####
+
+  ##### MAINTAIN W/ HYST. ####
+#matrix to hold output, starting with different harvest levels on each species
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+
+qEs=seq(0,8,length.out = 15)
+sto=seq(0,200, length.out = 15)
+df=expand.grid(X=qEs,Y=sto)
+df$A1=numeric(nrow(df))
+df$A2=numeric(nrow(df))
+df$J1=numeric(nrow(df))
+df$J2=numeric(nrow(df))
+
+
+for(i in 1:nrow(df)){
+  tstep=1:300
+  qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
+  y0=c(100,10,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  df$A1[i]=sim[nrow(sim)-1,2]
+  df$A2[i]=sim[nrow(sim)-1,3]
+  df$J1[i]=sim[nrow(sim)-1,4]
+  df$J2[i]=sim[nrow(sim)-1,5]
+}
+
+df$outcome=ifelse(df$A1>=df$A2,"darkgreen", "darkred")
+vz=ggplot(data = df)+theme_classic()
+
+a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
+
+#### FLIP W/ HYST. ####
+
+qEs=seq(0,8,length.out = 15)
+sto=seq(0,200, length.out = 15)
+df2=expand.grid(X=qEs,Y=sto)
+df2$A1=numeric(nrow(df2))
+df2$A2=numeric(nrow(df2))
+df2$J1=numeric(nrow(df2))
+df2$J2=numeric(nrow(df2))
+
+
+for(i in 1:nrow(df)){
+  tstep=1:300
+  qE1Fun=approxfun(x=tstep,y=rep(df2$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
+  y0=c(10,100,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  df2$A1[i]=sim[nrow(sim)-1,2]
+  df2$A2[i]=sim[nrow(sim)-1,3]
+  df2$J1[i]=sim[nrow(sim)-1,4]
+  df2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+df2$outcome=ifelse(df2$A1>=df2$A2,"darkgreen", "darkred")
+vz=ggplot(data = df2)+theme_classic()
+b=vz+geom_tile(aes(x=df2$X, y=df2$Y), fill=df2$outcome)+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
+
+##### MAINTAIN W/O HYST. ####
+#matrix to hold output, starting with different harvest levels on each species
+
+qEs=seq(0,8,length.out = 15)
+sto=seq(0,200, length.out = 15)
+dfwo=expand.grid(X=qEs,Y=sto)
+dfwo$A1=numeric(nrow(dfwo))
+dfwo$A2=numeric(nrow(dfwo))
+dfwo$J1=numeric(nrow(dfwo))
+dfwo$J2=numeric(nrow(dfwo))
+
+for(i in 1:nrow(dfwo)){
+  tstep=1:300
+  qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
+  y0=c(100,10,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfwo$A1[i]=sim[nrow(sim)-1,2]
+  dfwo$A2[i]=sim[nrow(sim)-1,3]
+  dfwo$J1[i]=sim[nrow(sim)-1,4]
+  dfwo$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfwo$outcome=ifelse(dfwo$A1>=dfwo$A2, "darkgreen", "darkred")
+vzwo=ggplot(data = dfwo)+theme_classic()
+c=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y), fill=dfwo$outcome)+
+  scale_fill_gradient(low ="blue", high = "yellow", name="")+
+  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
+
+#### FLIP W/O HYST. ####
+
+qEs=seq(0,8,length.out = 15)
+sto=seq(0,200, length.out = 15)
+dfwo2=expand.grid(X=qEs,Y=sto)
+dfwo2$A1=numeric(nrow(dfwo2))
+dfwo2$A2=numeric(nrow(dfwo2))
+dfwo2$J1=numeric(nrow(dfwo2))
+dfwo2$J2=numeric(nrow(dfwo2))
+
+
+for(i in 1:nrow(dfwo2)){
+  tstep=1:300
+  qE1Fun=approxfun(x=tstep,y=rep(dfwo2$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
+  y0=c(10,100,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfwo2$A1[i]=sim[nrow(sim)-1,2]
+  dfwo2$A2[i]=sim[nrow(sim)-1,3]
+  dfwo2$J1[i]=sim[nrow(sim)-1,4]
+  dfwo2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfwo2$outcome=ifelse(dfwo2$A1>=dfwo2$A2, "darkgreen", "darkred")
+vzwo=ggplot(data = dfwo2)+theme_classic()
+d=vzwo+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y), fill=dfwo2$outcome)+
+  scale_fill_gradient(low ="blue", high = "yellow", name="")+
+  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
+
+#comparing with and without hysteresis plots together using cowplot package
+ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
 ```
 ###Impact of Managment on system dyanmics  
