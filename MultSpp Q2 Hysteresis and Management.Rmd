@@ -152,6 +152,56 @@ lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
 text(x=225, y=100, labels = "95 years of harvest \nbefore intervention", cex=0.75)
 mtext("Year", side = 1, outer = T, line = 2.5)
 mtext("Population Size", side = 2, outer = T, line = 2.5)
+
+#other option for figure 1
+
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+tstep=1:300
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.002,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.002,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.002,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.002,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+par(mfcol=c(2,1), mar=c(1,1,3,1), oma=c(4,4,1,1))
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "",xlab = "", main = "Sp1 > Sp2")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+plot(store2$qEs,store2$A1,lwd=3, type='l', ylim = c(0, max(store2[,2:3],na.rm = T)),ylab = "", xlab = "", main = "Sp2 > Sp1")
+lines(store2$qEs,store2$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+mtext("Abundance", side = 2, outer = T, line = 2.5)
+mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
 ```
 
 ###Impact of stocking on system dynamics
@@ -241,7 +291,7 @@ h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 
 qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+sto=seq(0,2000, length.out = 15)
 df=expand.grid(X=qEs,Y=sto)
 df$A1=numeric(nrow(df))
 df$A2=numeric(nrow(df))
@@ -255,9 +305,9 @@ for(i in 1:nrow(df)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
-  y0=c(100,10,0,0)
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  y0=c(1000,100,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df$A1[i]=sim[nrow(sim)-1,2]
   df$A2[i]=sim[nrow(sim)-1,3]
@@ -265,7 +315,7 @@ for(i in 1:nrow(df)){
   df$J2[i]=sim[nrow(sim)-1,5]
 }
 
-df$outcome=ifelse(df$A1>=df$A2,"darkgreen", "darkred")
+df$outcome=ifelse(df$A1>=200,"darkgreen", "darkred")
 vz=ggplot(data = df)+theme_classic()
 
 a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
@@ -274,7 +324,7 @@ a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
 #### FLIP W/ HYST. ####
 
 qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+sto=seq(0,2000, length.out = 15)
 df2=expand.grid(X=qEs,Y=sto)
 df2$A1=numeric(nrow(df2))
 df2$A2=numeric(nrow(df2))
@@ -288,9 +338,9 @@ for(i in 1:nrow(df)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
-  y0=c(10,100,0,0)
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  y0=c(100,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df2$A1[i]=sim[nrow(sim)-1,2]
   df2$A2[i]=sim[nrow(sim)-1,3]
@@ -298,7 +348,7 @@ for(i in 1:nrow(df)){
   df2$J2[i]=sim[nrow(sim)-1,5]
 }
 
-df2$outcome=ifelse(df2$A1>=df2$A2,"darkgreen", "darkred")
+df2$outcome=ifelse(df2$A1>=200,"darkgreen", "darkred")
 vz=ggplot(data = df2)+theme_classic()
 b=vz+geom_tile(aes(x=df2$X, y=df2$Y), fill=df2$outcome)+
   labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
@@ -307,7 +357,7 @@ b=vz+geom_tile(aes(x=df2$X, y=df2$Y), fill=df2$outcome)+
 #matrix to hold output, starting with different harvest levels on each species
 
 qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+sto=seq(0,2000, length.out = 15)
 dfwo=expand.grid(X=qEs,Y=sto)
 dfwo$A1=numeric(nrow(dfwo))
 dfwo$A2=numeric(nrow(dfwo))
@@ -320,9 +370,9 @@ for(i in 1:nrow(dfwo)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
-  y0=c(100,10,0,0)
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=4,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
+  y0=c(1000,100,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo$A1[i]=sim[nrow(sim)-1,2]
   dfwo$A2[i]=sim[nrow(sim)-1,3]
@@ -330,7 +380,7 @@ for(i in 1:nrow(dfwo)){
   dfwo$J2[i]=sim[nrow(sim)-1,5]
 }
 
-dfwo$outcome=ifelse(dfwo$A1>=dfwo$A2, "darkgreen", "darkred")
+dfwo$outcome=ifelse(dfwo$A1>=200, "darkgreen", "darkred")
 vzwo=ggplot(data = dfwo)+theme_classic()
 c=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y), fill=dfwo$outcome)+
   scale_fill_gradient(low ="blue", high = "yellow", name="")+
@@ -339,7 +389,7 @@ c=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y), fill=dfwo$outcome)+
 #### FLIP W/O HYST. ####
 
 qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+sto=seq(0,2000, length.out = 15)
 dfwo2=expand.grid(X=qEs,Y=sto)
 dfwo2$A1=numeric(nrow(dfwo2))
 dfwo2$A2=numeric(nrow(dfwo2))
@@ -353,9 +403,9 @@ for(i in 1:nrow(dfwo2)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
-  y0=c(10,100,0,0)
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=4,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
+  y0=c(10,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo2$A1[i]=sim[nrow(sim)-1,2]
   dfwo2$A2[i]=sim[nrow(sim)-1,3]
@@ -363,13 +413,13 @@ for(i in 1:nrow(dfwo2)){
   dfwo2$J2[i]=sim[nrow(sim)-1,5]
 }
 
-dfwo2$outcome=ifelse(dfwo2$A1>=dfwo2$A2, "darkgreen", "darkred")
+dfwo2$outcome=ifelse(dfwo2$A1>=200, "darkgreen", "darkred")
 vzwo=ggplot(data = dfwo2)+theme_classic()
 d=vzwo+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y), fill=dfwo2$outcome)+
   scale_fill_gradient(low ="blue", high = "yellow", name="")+
   labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
 
-#comparing with and without hysteresis plots together using cowplot package
+#comparing with and without hysteresis plots together using ggpubr package
 ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
 ```
