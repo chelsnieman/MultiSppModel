@@ -2,9 +2,7 @@
 title: 'Q2: Hysteresis and Management'
 author: "Colin Dassow and Chelsey Nieman"
 date: "7/17/2020"
-output: 
-  word_document:
-    fig_caption: true
+output: word_document
 bibliography: MultispeciesModelCite.bib
 
 ---
@@ -55,6 +53,14 @@ colnames(params) <- "Value"
 knitr::kable(params, caption="Paramater Values",  col.names = NA, row.names = NA)
 ```
 *Here, I think we should list all the simulations we ran and say why - then just show the different ones in the results*
+### Simulations: 
+*Do these make sense? I think this covers what we discussed figure-wise, but am open to different ideas*
+Influence of management (control on harvest) over time   
+Timing of management intervention for stable state maintenance  
+- Running the model to equilibrium and then look at management timing   
+Influence of stocking on system dynamics (w/ and w/out hysteresis)  
+What if we put both together?   
+slow change in system - how can management help?   
 
 # Results
 ## Base Model Behavior
@@ -225,7 +231,7 @@ ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
 #this plot is a start at least, the point here is that when the species interact (hysteresis present) low levels of stocking at any harvest rate aren't enough to keep the system in a state where A1 dominates. (right now I'm using A1 abundance at my way of telling who dominates but it's not quite right I don't think. It'd be easy enough to pull different info out of the model runs if we wanted.)
 ```
 
-```{r, cache=T, fig.dim=c(7,7), fig.cap="Fig X. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1}
+```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig X. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1"}
 ##### HEATMAPS #####
 
   ##### MAINTAIN W/ HYST. ####
