@@ -2,9 +2,9 @@
 library(deSolve)
 library(ggplot2)
 library(ggpubr)
+rm(list=ls())
 source('q2Func.R')
 
-rm(list=ls())
 tstep=1:300
 
 
@@ -185,24 +185,24 @@ mtext("Population Size", side = 2, outer = T, line = 2.5)
   ##### MAINTAIN W/ HYST. ####
 #matrix to hold output, starting with different harvest levels on each species
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 df=expand.grid(X=qEs,Y=sto)
 df$A1=numeric(nrow(df))
 df$A2=numeric(nrow(df))
 df$J1=numeric(nrow(df))
 df$J2=numeric(nrow(df))
-
+minDiff=100
 
 for(i in 1:nrow(df)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
-  y0=c(100,10,0,0)
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  y0=c(1000,900,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df$A1[i]=sim[nrow(sim)-1,2]
   df$A2[i]=sim[nrow(sim)-1,3]
@@ -210,12 +210,16 @@ for(i in 1:nrow(df)){
   df$J2[i]=sim[nrow(sim)-1,5]
 }
 
-df$outcome=ifelse(df$A1>=df$A2,"darkgreen", "darkred")
+df$diff=df$A1-df$A2
+df$outcome=ifelse(df$A1-df$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = df)+theme_classic()
-# a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$A1))+scale_fill_gradient(low ="blue", high = "yellow", name="")+
-#   labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
-a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
-  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
+a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(df$diff), 1, max(df$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")+
+  geom_contour(aes(x=df$X, y=df$Y, z=df$diff), breaks = c(minDiff))
+  
+#a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
+#  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
 # vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$A2))+scale_fill_gradient(low ="blue", high = "yellow", name="")+
 #   labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
 # vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$Y/df$A1))+scale_fill_gradient(low ="blue", high = "yellow", name="")+
@@ -223,8 +227,8 @@ a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
 
 #### FLIP W/ HYST. ####
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 df2=expand.grid(X=qEs,Y=sto)
 df2$A1=numeric(nrow(df2))
 df2$A2=numeric(nrow(df2))
@@ -233,14 +237,14 @@ df2$J2=numeric(nrow(df2))
 
 
 for(i in 1:nrow(df)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(df2$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
-  y0=c(10,100,0,0)
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  y0=c(900,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df2$A1[i]=sim[nrow(sim)-1,2]
   df2$A2[i]=sim[nrow(sim)-1,3]
@@ -248,18 +252,21 @@ for(i in 1:nrow(df)){
   df2$J2[i]=sim[nrow(sim)-1,5]
 }
 
-df2$outcome=ifelse(df2$A1>=df2$A2,"darkgreen", "darkred")
+df2$diff=df2$A1-df2$A2
+df2$outcome=ifelse(df2$A1-df2$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = df2)+theme_classic()
-# a=vz+geom_tile(aes(x=df2$X, y=df2$Y, fill=df2$A1))+scale_fill_gradient(low ="blue", high = "yellow", name="")+
-#   labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
-b=vz+geom_tile(aes(x=df2$X, y=df2$Y), fill=df2$outcome)+
-  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
+b=vz+geom_tile(aes(x=df2$X, y=df2$Y, fill=df2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="")+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")+
+  geom_contour(aes(x=df2$X, y=df2$Y, z=df2$diff), breaks = c(minDiff))
+#b=vz+geom_tile(aes(x=df2$X, y=df2$Y), fill=df2$outcome)+
+#  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
 
 ##### MAINTAIN W/O HYST. ####
 #matrix to hold output, starting with different harvest levels on each species
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 dfwo=expand.grid(X=qEs,Y=sto)
 dfwo$A1=numeric(nrow(dfwo))
 dfwo$A2=numeric(nrow(dfwo))
@@ -269,14 +276,14 @@ dfwo$J2=numeric(nrow(dfwo))
 source('q2Func.R')
 
 for(i in 1:nrow(dfwo)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
-  y0=c(100,10,0,0)
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
+  y0=c(1000,900,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo$A1[i]=sim[nrow(sim)-1,2]
   dfwo$A2[i]=sim[nrow(sim)-1,3]
@@ -284,19 +291,24 @@ for(i in 1:nrow(dfwo)){
   dfwo$J2[i]=sim[nrow(sim)-1,5]
 }
 
-dfwo$outcome=ifelse(dfwo$A1>=dfwo$A2, "darkgreen", "darkred")
-vzwo=ggplot(data = dfwo)+theme_classic()
-c=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y), fill=dfwo$outcome)+
-  scale_fill_gradient(low ="blue", high = "yellow", name="")+
-  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
+dfwo$diff=dfwo$A1-dfwo$A2
+dfwo$outcome=ifelse(dfwo$A1-dfwo$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfwo)+theme_classic()
+c=vz+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="")+
+  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")+
+  geom_contour(aes(x=dfwo$X, y=dfwo$Y, z=dfwo$diff), breaks = c(minDiff))
+# c=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y), fill=dfwo$outcome)+
+#   scale_fill_gradient(low ="blue", high = "yellow", name="")+
+#   labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
 # vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A2))+
 #   scale_fill_gradient(low ="blue", high = "yellow", name="")+
 #   labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
 
 #### FLIP W/O HYST. ####
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 dfwo2=expand.grid(X=qEs,Y=sto)
 dfwo2$A1=numeric(nrow(dfwo2))
 dfwo2$A2=numeric(nrow(dfwo2))
@@ -306,14 +318,14 @@ dfwo2$J2=numeric(nrow(dfwo2))
 source('q2Func.R')
 
 for(i in 1:nrow(dfwo2)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(dfwo2$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=2)
-  y0=c(10,100,0,0)
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
+      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
+  y0=c(900,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo2$A1[i]=sim[nrow(sim)-1,2]
   dfwo2$A2[i]=sim[nrow(sim)-1,3]
@@ -321,11 +333,16 @@ for(i in 1:nrow(dfwo2)){
   dfwo2$J2[i]=sim[nrow(sim)-1,5]
 }
 
-dfwo2$outcome=ifelse(dfwo2$A1>=dfwo2$A2, "darkgreen", "darkred")
-vzwo=ggplot(data = dfwo2)+theme_classic()
-d=vzwo+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y), fill=dfwo2$outcome)+
-  scale_fill_gradient(low ="blue", high = "yellow", name="")+
-  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
+dfwo2$diff=dfwo2$A1-dfwo2$A2
+dfwo2$outcome=ifelse(dfwo2$A1-dfwo2$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfwo2)+theme_classic()
+d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="")+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")+
+  geom_contour(aes(x=dfwo2$X, y=dfwo2$Y, z=dfwo2$diff), breaks = c(minDiff))
+# d=vzwo+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y), fill=dfwo2$outcome)+
+#   scale_fill_gradient(low ="blue", high = "yellow", name="")+
+#   labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
 # vzwo+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$A2))+
 #   scale_fill_gradient(low ="blue", high = "yellow", name="")+
 #   labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")

@@ -4,7 +4,8 @@ author: "Colin Dassow and Chelsey Nieman"
 date: "7/17/2020"
 output: word_document
 bibliography: MultispeciesModelCite.bib
-
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -65,61 +66,14 @@ slow change in system - how can management help?
 # Results
 ## Base Model Behavior
 *Discuss the base model and how it worked out for us*
-Discuss, and maybe include a figure that show how the Biggs model is nested in our model and represents a species parameterization of our model. Our model is slightly more general/flexible because we allow for harvest on both species. *I can make a figure that shows how we can reproduce Bigg's results* *I am not super sure that we need it? Let's keep it in mind, but I think that if we just illustrate our model's behavior that might be enough for this paper?*
+Discuss, and maybe include a figure that show how the Biggs model is nested in our model and represents a species parameterization of our model. Our model is slightly more general/flexible because we allow for harvest on both species. *I can make a figure that shows how we can reproduce Bigg's results* *I am not super sure that we need it? Let's keep it in mind, but I think that if we just illustrate our model's behavior that might be enough for this paper?* **Agreed**
 
-This model shows the presence of alternative stable states. These states are driven by cultivation-depensation throuh **XX** (Figure 1). When initial abundance of species 1 is high and species 2 is low, **XX** stable state occurs. However, when we alternate these, we find an alternative stable state in which **XX** which occurs at higher levels of harvest. 
+This model shows the presence of alternative stable states. These states are driven by cultivation-depensation through **XX** (Figure 1). When initial abundance of species 1 is high and species 2 is low, **XX** stable state occurs. However, when we alternate these, we find an alternative stable state in which **XX** which occurs at higher levels of harvest. 
 
-```{r, echo=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Figure 1. Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.'}
-tstep=1:300
-store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
-y0=c(100,10,0,0)
-for(i in 1:nrow(store)){
-  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
-  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
-  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
-  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-  store$A1[i]=sim[nrow(sim)-1,2]
-  store$A2[i]=sim[nrow(sim)-1,3]
-  store$J1[i]=sim[nrow(sim)-1,4]
-  store$J2[i]=sim[nrow(sim)-1,5]
-}
-store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
-y0=c(10,100,0,0)
-for(i in 1:nrow(store2)){
-  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
-  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
-  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
-  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-  store2$A1[i]=sim[nrow(sim)-1,2]
-  store2$A2[i]=sim[nrow(sim)-1,3]
-  store2$J1[i]=sim[nrow(sim)-1,4]
-  store2$J2[i]=sim[nrow(sim)-1,5]
-}
-
-plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "Abundance",xlab = "Species 1 Harvest (q*E)")
-lines(store$qEs,store$A2,lwd=3,col='grey')
-lines(store2$qEs,store2$A1,lwd=3,lty=3)
-lines(store2$qEs,store2$A2,lwd=3,col='grey',lty=3)
-legend("topright",legend = c("sp 1", "sp 2","sp2>sp1","sp1>sp2"), col = c("black","grey","black","black"),lwd=2,lty = c(1,1,1,3),bty="n")
-
-
-```
 
 Temporal factors and the timing of management interventions were found to play an important role in maintenance of a stable state. Here, we found that one year of timing difference in management could result in differing stable states, resulting in dominance of alternative species within the system (Figure 2). 
 *here I think we can include this plot which looks at one run of the model through time to show how management intervention even one year too late can lead to a regime shift. Maybe this replaces the plot above where we run the model to euqilibrium across a range of parms values or maybe it's worth having both of these.* *I think its worth including both for now - it's interesting that just one year difference can result in such a big difference. It might be something very much worth noting.* **If we do keep it, we should add a bit to the intro that discusses timing of management and what influence that plays.** 
-```{r, echo=F,cache=T, fig.cap='Figure 2. Temporal influence of management interventions'}
+```{r, echo=F,cache=T, fig.cap='Figure 2. Temporal influence of management interventions. Intervention to stop harvest one year too late can allow for regime shift to undesired state'}
 #### figure 1 ####
 
 # mangement intervention in time
@@ -152,7 +106,9 @@ lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
 text(x=225, y=100, labels = "95 years of harvest \nbefore intervention", cex=0.75)
 mtext("Year", side = 1, outer = T, line = 2.5)
 mtext("Population Size", side = 2, outer = T, line = 2.5)
+```
 
+```{r, echo=F,cache=T, fig.cap='Figure 2. Model run to equilibrium over a range of harvest parameters, no stocking. Top panel shows equilibrium abundances for the range of harvests when species 1 is initially dominant. Bottom panel shows equilibrium abundances for the range of harvests when species 2 is initially dominant.'}
 #other option for figure 1
 
 store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
@@ -208,99 +164,24 @@ mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
    - optimal strategy and magnitude  
    - influence of hysteresis    
    
-```{r,echo=FALSE, cache==TRUE, cache.comments=F, fig.cap="Figure 3. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis", eval=F}
-#not sure exactly where we want this, in the simulation space or right in the results
-
-#these get reused for both plots below
-tstep=1:300
-h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-
-#### OUTCOMES WITH HYSTERESIS ####
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
-df=expand.grid(X=qEs,Y=sto)
-df$A1=numeric(nrow(df))
-df$A2=numeric(nrow(df))
-df$J1=numeric(nrow(df))
-df$J2=numeric(nrow(df))
-
-for(i in 1:nrow(df)){
-  tstep=1:300
-  qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
-  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
-  st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
-  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
-  y0=c(10,10,0,0)
-  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-  df$A1[i]=sim[nrow(sim)-1,2]
-  df$A2[i]=sim[nrow(sim)-1,3]
-  df$J1[i]=sim[nrow(sim)-1,4]
-  df$J2[i]=sim[nrow(sim)-1,5]
-}
-
-vz=ggplot(data = df)+theme_classic()
-a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$A1))+scale_fill_gradient(low ="blue", high = "yellow", name="")+
-  labs(x="Harvest Rate", y="Stocked Fish per Year", title = "Hysteresis Present")+
-   guides(fill="none")
-
-#### OUTCOMES WITHOUT HYSTERESIS ####
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,200, length.out = 15)
-dfwo=expand.grid(X=qEs,Y=sto)
-dfwo$A1=numeric(nrow(dfwo))
-dfwo$A2=numeric(nrow(dfwo))
-dfwo$J1=numeric(nrow(dfwo))
-dfwo$J2=numeric(nrow(dfwo))
-
-for(i in 1:nrow(dfwo)){
-  tstep=1:300
-  qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
-  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
-  st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
-  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0,cJ1J2=0,v1=1,f1=2,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0,cJ2J1=0,v2=1,f2=2)
-  y0=c(10,10,0,0)
-  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-  dfwo$A1[i]=sim[nrow(sim)-1,2]
-  dfwo$A2[i]=sim[nrow(sim)-1,3]
-  dfwo$J1[i]=sim[nrow(sim)-1,4]
-  dfwo$J2[i]=sim[nrow(sim)-1,5]
-}
-
-vzwo=ggplot(data = dfwo)+theme_classic()
-b=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A1))+
-  scale_fill_gradient(low ="blue", high = "yellow", name="A1 Abund")+
-  labs(x="Harvest Rate", y="", title = "No Hysteresis Present")
-
-#comparing with and without hysteresis plots together 
-ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
-#this plot is a start at least, the point here is that when the species interact (hysteresis present) low levels of stocking at any harvest rate aren't enough to keep the system in a state where A1 dominates. (right now I'm using A1 abundance at my way of telling who dominates but it's not quite right I don't think. It'd be easy enough to pull different info out of the model runs if we wanted.)
-```
 
 ```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig X. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1"}
 ##### HEATMAPS #####
 
   ##### MAINTAIN W/ HYST. ####
 #matrix to hold output, starting with different harvest levels on each species
-tstep=1:300
-h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,2000, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 df=expand.grid(X=qEs,Y=sto)
 df$A1=numeric(nrow(df))
 df$A2=numeric(nrow(df))
 df$J1=numeric(nrow(df))
 df$J2=numeric(nrow(df))
-
+minDiff=100
 
 for(i in 1:nrow(df)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
@@ -315,16 +196,18 @@ for(i in 1:nrow(df)){
   df$J2[i]=sim[nrow(sim)-1,5]
 }
 
-df$outcome=ifelse(df$A1>=200,"darkgreen", "darkred")
+df$diff=df$A1-df$A2
+df$outcome=ifelse(df$A1-df$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = df)+theme_classic()
-
-a=vz+geom_tile(aes(x=df$X, y=df$Y), fill=df$outcome)+
-  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
-
+a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(df$diff), 1, max(df$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present, sp1>sp2")+
+  geom_contour(aes(x=df$X, y=df$Y, z=df$diff), breaks = c(minDiff))
+  
 #### FLIP W/ HYST. ####
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,2000, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 df2=expand.grid(X=qEs,Y=sto)
 df2$A1=numeric(nrow(df2))
 df2$A2=numeric(nrow(df2))
@@ -333,7 +216,7 @@ df2$J2=numeric(nrow(df2))
 
 
 for(i in 1:nrow(df)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(df2$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
@@ -348,16 +231,19 @@ for(i in 1:nrow(df)){
   df2$J2[i]=sim[nrow(sim)-1,5]
 }
 
-df2$outcome=ifelse(df2$A1>=200,"darkgreen", "darkred")
+df2$diff=df2$A1-df2$A2
+df2$outcome=ifelse(df2$A1-df2$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = df2)+theme_classic()
-b=vz+geom_tile(aes(x=df2$X, y=df2$Y), fill=df2$outcome)+
-  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present")
+b=vz+geom_tile(aes(x=df2$X, y=df2$Y, fill=df2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(df2$diff), 1, max(df2$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Hysteresis Present, sp2>sp1")+
+  geom_contour(aes(x=df2$X, y=df2$Y, z=df2$diff), breaks = c(minDiff))
 
 ##### MAINTAIN W/O HYST. ####
 #matrix to hold output, starting with different harvest levels on each species
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,2000, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 dfwo=expand.grid(X=qEs,Y=sto)
 dfwo$A1=numeric(nrow(dfwo))
 dfwo$A2=numeric(nrow(dfwo))
@@ -365,12 +251,12 @@ dfwo$J1=numeric(nrow(dfwo))
 dfwo$J2=numeric(nrow(dfwo))
 
 for(i in 1:nrow(dfwo)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=4,
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
       s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
   y0=c(1000,100,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
@@ -380,32 +266,33 @@ for(i in 1:nrow(dfwo)){
   dfwo$J2[i]=sim[nrow(sim)-1,5]
 }
 
-dfwo$outcome=ifelse(dfwo$A1>=200, "darkgreen", "darkred")
-vzwo=ggplot(data = dfwo)+theme_classic()
-c=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y), fill=dfwo$outcome)+
-  scale_fill_gradient(low ="blue", high = "yellow", name="")+
-  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
+dfwo$diff=dfwo$A1-dfwo$A2
+dfwo$outcome=ifelse(dfwo$A1-dfwo$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfwo)+theme_classic()
+c=vz+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(dfwo$diff), 1, max(dfwo$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present, sp1>sp2")+
+  geom_contour(aes(x=dfwo$X, y=dfwo$Y, z=dfwo$diff), breaks = c(minDiff))
 
 #### FLIP W/O HYST. ####
 
-qEs=seq(0,8,length.out = 15)
-sto=seq(0,2000, length.out = 15)
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
 dfwo2=expand.grid(X=qEs,Y=sto)
 dfwo2$A1=numeric(nrow(dfwo2))
 dfwo2$A2=numeric(nrow(dfwo2))
 dfwo2$J1=numeric(nrow(dfwo2))
 dfwo2$J2=numeric(nrow(dfwo2))
 
-
 for(i in 1:nrow(dfwo2)){
-  tstep=1:300
+  tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(dfwo2$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=4,
+  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
       s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
-  y0=c(10,1000,0,0)
+  y0=c(100,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo2$A1[i]=sim[nrow(sim)-1,2]
   dfwo2$A2[i]=sim[nrow(sim)-1,3]
@@ -413,13 +300,16 @@ for(i in 1:nrow(dfwo2)){
   dfwo2$J2[i]=sim[nrow(sim)-1,5]
 }
 
-dfwo2$outcome=ifelse(dfwo2$A1>=200, "darkgreen", "darkred")
-vzwo=ggplot(data = dfwo2)+theme_classic()
-d=vzwo+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y), fill=dfwo2$outcome)+
-  scale_fill_gradient(low ="blue", high = "yellow", name="")+
-  labs(x="Harvest Rate", y="Stocked fish", title = "No Hysteresis Present")
+dfwo2$diff=dfwo2$A1-dfwo2$A2
+dfwo2$outcome=ifelse(dfwo2$A1-dfwo2$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfwo2)+theme_classic()
+d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(dfwo2$diff), 1, max(dfwo2$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = " No Hysteresis Present, sp2>sp1")+
+  geom_contour(aes(x=dfwo2$X, y=dfwo2$Y, z=dfwo2$diff), breaks = c(minDiff))
 
-#comparing with and without hysteresis plots together using ggpubr package
+#comparing with and without hysteresis plots together using cowplot package
+dev.new()
 ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
 ```
@@ -506,3 +396,126 @@ Conclusions
 
 # Supplemental 
 
+
+# Figure grave yard
+
+```{r,echo=FALSE, cache==TRUE, cache.comments=F, fig.cap="Figure 3. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis", eval=F}
+#not sure exactly where we want this, in the simulation space or right in the results
+
+#these get reused for both plots below
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+
+#### OUTCOMES WITH HYSTERESIS ####
+qEs=seq(0,8,length.out = 15)
+sto=seq(0,200, length.out = 15)
+df=expand.grid(X=qEs,Y=sto)
+df$A1=numeric(nrow(df))
+df$A2=numeric(nrow(df))
+df$J1=numeric(nrow(df))
+df$J2=numeric(nrow(df))
+
+for(i in 1:nrow(df)){
+  tstep=1:300
+  qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
+  y0=c(10,10,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  df$A1[i]=sim[nrow(sim)-1,2]
+  df$A2[i]=sim[nrow(sim)-1,3]
+  df$J1[i]=sim[nrow(sim)-1,4]
+  df$J2[i]=sim[nrow(sim)-1,5]
+}
+
+vz=ggplot(data = df)+theme_classic()
+a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$A1))+scale_fill_gradient(low ="blue", high = "yellow", name="")+
+  labs(x="Harvest Rate", y="Stocked Fish per Year", title = "Hysteresis Present")+
+   guides(fill="none")
+
+#### OUTCOMES WITHOUT HYSTERESIS ####
+qEs=seq(0,8,length.out = 15)
+sto=seq(0,200, length.out = 15)
+dfwo=expand.grid(X=qEs,Y=sto)
+dfwo$A1=numeric(nrow(dfwo))
+dfwo$A2=numeric(nrow(dfwo))
+dfwo$J1=numeric(nrow(dfwo))
+dfwo$J2=numeric(nrow(dfwo))
+
+for(i in 1:nrow(dfwo)){
+  tstep=1:300
+  qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0,cJ1J2=0,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0,cJ2J1=0,v2=1,f2=2)
+  y0=c(10,10,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfwo$A1[i]=sim[nrow(sim)-1,2]
+  dfwo$A2[i]=sim[nrow(sim)-1,3]
+  dfwo$J1[i]=sim[nrow(sim)-1,4]
+  dfwo$J2[i]=sim[nrow(sim)-1,5]
+}
+
+vzwo=ggplot(data = dfwo)+theme_classic()
+b=vzwo+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$A1))+
+  scale_fill_gradient(low ="blue", high = "yellow", name="A1 Abund")+
+  labs(x="Harvest Rate", y="", title = "No Hysteresis Present")
+
+#comparing with and without hysteresis plots together 
+ggarrange(a,b,labels = c("A","B"), nrow = 1,ncol = 2)
+#this plot is a start at least, the point here is that when the species interact (hysteresis present) low levels of stocking at any harvest rate aren't enough to keep the system in a state where A1 dominates. (right now I'm using A1 abundance at my way of telling who dominates but it's not quite right I don't think. It'd be easy enough to pull different info out of the model runs if we wanted.)
+```
+
+```{r, echo=FALSE, cash=TRUE, cash.comments=FALSE, fig.keep='high', fig.cap='Figure 1. Basic model behavior. When species are equal in all interactions, alternate stable states can be produced by through harvest. The stable state will depend  on the combination of harvest rate and the species with the higher initial abundance.', eval=F}
+tstep=1:300
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "Abundance",xlab = "Species 1 Harvest (q*E)")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+lines(store2$qEs,store2$A1,lwd=3,lty=3)
+lines(store2$qEs,store2$A2,lwd=3,col='grey',lty=3)
+legend("topright",legend = c("sp 1", "sp 2","sp2>sp1","sp1>sp2"), col = c("black","grey","black","black"),lwd=2,lty = c(1,1,1,3),bty="n")
+
+
+```
