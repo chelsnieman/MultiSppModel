@@ -345,7 +345,7 @@ Impact of hysteresis in our model
 How timing of management and stocking are important factors to consider.   
 extrapolate to freshwater fish dynamics  
    - How our model is/is not a good representation of freshwater systems  
-   -What is missing from our model.   
+   - What is missing from our model.   
 Optimal Management Strategies   
   - What did we learn from comparing stocking and controlling harvest?  
   - Management implications - do we use models like this to identify 'Early Warning Signs' of potential regime shift? [@litzow2016].   
