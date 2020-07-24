@@ -70,42 +70,8 @@ This model shows the presence of alternative stable states. These states are dri
 
 Temporal factors and the timing of management interventions were found to play an important role in maintenance of a stable state. Here, we found that one year of timing difference in management could result in differing stable states, resulting in dominance of alternative species within the system (Figure 2). 
 *here I think we can include this plot which looks at one run of the model through time to show how management intervention even one year too late can lead to a regime shift. Maybe this replaces the plot above where we run the model to euqilibrium across a range of parms values or maybe it's worth having both of these.* *I think its worth including both for now - it's interesting that just one year difference can result in such a big difference. It might be something very much worth noting.* **If we do keep it, we should add a bit to the intro that discusses timing of management and what influence that plays.** 
-```{r, echo=F,cache=T, fig.cap='Figure 2. Temporal influence of management interventions. Intervention to stop harvest one year too late can allow for regime shift to undesired state'}
-#### figure 1 ####
 
-# mangement intervention in time
-tstep=1:300
-h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 94),rep(0,206)))
-qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
-st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-    s2=0.1,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1,f2=2)
-y0=c(100,10,0,0)
-sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-
-#intervention one year later has no effect
-qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 95),rep(0,205)))
-sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-
-#plotting
-par(mfcol=c(2,1), mar=c(1,1,1,1), oma=c(4,4,1,1))
-plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
-lines(sim[,1],sim[,3],col='black',lwd=2)
-lines(sim[,1],qE1Fun(sim[,1]),lty=2)
-text(x=225, y=100, labels = "94 years of harvest \nbefore intervention", cex=0.75)
-legend("topleft", legend = c("sp1","sp2", "harvest rate"), col = c('grey','black','black'),lty = c(1,1,2),lwd=2,bty = "n")
-plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
-lines(sim2[,1],sim2[,3],col='black',lwd=2)
-lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
-text(x=225, y=100, labels = "95 years of harvest \nbefore intervention", cex=0.75)
-mtext("Year", side = 1, outer = T, line = 2.5)
-mtext("Population Size", side = 2, outer = T, line = 2.5)
-```
-
-```{r, echo=F,cache=T, fig.cap='Figure 2. Model run to equilibrium over a range of harvest parameters, no stocking. Top panel shows equilibrium abundances for the range of harvests when species 1 is initially dominant. Bottom panel shows equilibrium abundances for the range of harvests when species 2 is initially dominant.'}
+```{r, echo=F,cache=T, fig.cap='Figure 1. Model run to equilibrium over a range of harvest parameters, no stocking. Top panel shows equilibrium abundances for the range of harvests when species 1 is initially dominant. Bottom panel shows equilibrium abundances for the range of harvests when species 2 is initially dominant.'}
 #other option for figure 1
 
 store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
@@ -159,10 +125,9 @@ mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
 
 ###Impact of stocking on system dynamics
    - optimal strategy and magnitude  
-   - influence of hysteresis    
-   
+   - influence of hysteresis   
 
-```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig X. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1"}
+```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig 2. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 equilibrium abundance higher than sp2, red = sp2 > sp1"}
 ##### HEATMAPS #####
 
   ##### MAINTAIN W/ HYST. ####
@@ -310,11 +275,12 @@ dev.new()
 ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
 ```
+
 ###Impact of Managment on system dyanmics  
    - optimal strategy and magnitude  
    - influence of hysteresis    
    
-````{r, echo=FALSE, cash=TRUE, cash.comments=F, fig.cap='Figure 3. dynamics through time'}
+````{r, echo=FALSE, cash=TRUE, cash.comments=F, fig.cap='Figure 3. Top row of figures show effect of management response in a system where hysteresis is considered. Bottom row shows effect of management without hysteresis'}
 
 #another panel plot that focuses on dynamics through time (instead of equilibrium) similar to Biggs
 #### WITH HYSTERESIS and a state flip
@@ -351,25 +317,26 @@ qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.73,length.out = 100),rep(0,200)))
 sim4=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
 #plot shows top
-par(mfrow=c(2,2))
+par(mfrow=c(2,2),mar=c(1,1,1,1), oma=c(4,4,1,1))
 plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
 lines(sim[,1],sim[,3],col='black',lwd=2)
 lines(sim[,1],qE1Fun(sim[,1]),lty=2)
-legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+#legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
 plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
 lines(sim2[,1],sim2[,3],col='black',lwd=2)
 lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
-legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+legend("right", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
 sim3=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 plot(sim3[,1],sim3[,2],type='l',ylim=c(0,max(sim3[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
 lines(sim3[,1],sim3[,3],col='black',lwd=2)
 lines(sim3[,1],qE1Fun(sim3[,1]),lty=2)
-legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+#legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
 plot(sim4[,1],sim4[,2],type='l',ylim=c(0,max(sim4[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")
 lines(sim4[,1],sim4[,3],col='black',lwd=2)
 lines(sim4[,1],qE1Fun(sim4[,1]),lty=2)
-legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
-
+#legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = 1,lwd=2,bty = "n")
+mtext("Years",side = 1, outer = T, line = 2.5)
+mtext("Abundance", side = 2, outer = T, line = 2.5)
 ````
 
 # Discussion   
@@ -396,6 +363,42 @@ Conclusions
 
 
 # Figure grave yard
+
+```{r, echo=F,cache=T, fig.cap='Figure 2. Temporal influence of management interventions. Intervention to stop harvest one year too late can allow for regime shift to undesired state'}
+#### figure 1 ####
+
+# mangement intervention in time
+tstep=1:300
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 94),rep(0,206)))
+qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1,f2=2)
+y0=c(100,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#intervention one year later has no effect
+qE1Fun=approxfun(x=tstep,y=c(seq(0,by=.74,length.out = 95),rep(0,205)))
+sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#plotting
+par(mfcol=c(2,1), mar=c(1,1,1,1), oma=c(4,4,1,1))
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+lines(sim[,1],qE1Fun(sim[,1]),lty=2)
+text(x=225, y=100, labels = "94 years of harvest \nbefore intervention", cex=0.75)
+legend("topleft", legend = c("sp1","sp2", "harvest rate"), col = c('grey','black','black'),lty = c(1,1,2),lwd=2,bty = "n")
+plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim2[,1],sim2[,3],col='black',lwd=2)
+lines(sim2[,1],qE1Fun(sim2[,1]),lty=2)
+text(x=225, y=100, labels = "95 years of harvest \nbefore intervention", cex=0.75)
+mtext("Year", side = 1, outer = T, line = 2.5)
+mtext("Population Size", side = 2, outer = T, line = 2.5)
+```
+
 
 ```{r,echo=FALSE, cache==TRUE, cache.comments=F, fig.cap="Figure 3. Effect of stocking at different harvest rates. (a) with hysteresis, (b) without hysteresis", eval=F}
 #not sure exactly where we want this, in the simulation space or right in the results
