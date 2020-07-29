@@ -337,6 +337,8 @@ When we model the combination of stocking and harvest control on the system, we 
 
 ```{r, echo=FALSE, cache=TRUE, cache.comments=FALSE, eval=FALSE}
 # Here I am going to make the summary figure that does both
+#thinking through this figure: we likely want something that shows 'optimal stocking + management' on biomass
+# I am thinking a figure like fig 3, but having multiple lines = multiple stocking levels? 
 
 ```
 
