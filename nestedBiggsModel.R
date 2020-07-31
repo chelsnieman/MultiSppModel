@@ -15,15 +15,21 @@ rm(list=ls())
 # f - fecundity, species specific
 tstep=1:300
 
-qE1Fun=approxfun(x=tstep,y=c(seq(0,by=0.1111,length.out = 113),rep(0,187)))
+#qE1Fun=approxfun(x=tstep,y=c(seq(0,by=0.1111,length.out = 113),rep(0,187)))
 # qE2Fun=approxfun(x=tstep,y=seq(0,5,length.out = length(tstep)))
-# qE1Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
-qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+ qE1Fun=approxfun(x=tstep,y=rep(1.5, length(tstep)))
+qE2Fun=approxfun(x=tstep,y=rep(1.5, length(tstep)))
 
 # h1Fun=approxfun(x=tstep,y=seq(0,10,length.out = length(tstep)))
 # h2Fun=approxfun(x=tstep,y=seq(0,10,length.out = length(tstep)))
 h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+
+# f1Fun=approxfun(x=tstep,y=seq(0,10,length.out = length(tstep)))
+# f2Fun=approxfun(x=tstep,y=seq(0,10,length.out = length(tstep)))
+f1Fun=approxfun(x=tstep,y=c(rep(2,length(tstep)*.5),seq(2,0,length.out = length(tstep)*.5)))
+f2Fun=approxfun(x=tstep,y=rep(2,length(tstep)))
+
 
 simBiggs<-function(t,y,params){
   A1<-y[1]
@@ -33,14 +39,14 @@ simBiggs<-function(t,y,params){
   with(as.list(params),{
     dA1dt=-qE1Fun(t)*A1+(s1-1)*A1+s1*J1
     dA2dt=-qE2Fun(t)*A2+(s2-1)*A2+s2*J2
-    dJ1dt=-cJ1A1*J1*A1-cJ1J2*J2*J1-(cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2)+f1*A1
-    dJ2dt=-cJ2A2*J2*A2-cJ2J1*J1*J2-(cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1)+f2*A2
+    dJ1dt=-cJ1A1*J1*A1-cJ1J2*J2*J1-(cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2)+f1Fun(t)*A1
+    dJ2dt=-cJ2A2*J2*A2-cJ2J1*J1*J2-(cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1)+f2Fun(t)*A2
     return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
   })
 }
-p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.000,v1=1,f1=2,
-    s2=0.1,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.000,v2=1,f2=2)
-y0=c(100,10,0,0)
+p=c(s1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.5,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.003,v2=1)
+y0=c(100,100,0,0)
 sim=ode(y=y0,times=tstep,func=simBiggs,parms=p)
 #sim[nrow(sim),]
 plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "Year",ylab = "pop. size")

@@ -351,6 +351,43 @@ d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
 dev.new()
 ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
+#### DELAY A FLIP ####
+#figure on delaying a transition
+
+tstep=1:100
+h1Fun=approxfun(x=tstep,y=c(seq(3,0, length.out = 50), rep(0,50)))
+h2Fun=approxfun(x=tstep,y=c(seq(10,5, length.out = 50),rep(5,50)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,100)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,100)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.5,cJ2A2=0.001,cJ2A1=0.05,cJ2J1=0.003,v2=1,f2=2)
+y0=c(200,100,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#stocking delays the transition to sp2
+tstep=1:100
+h1Fun=approxfun(x=tstep,y=c(seq(3,0, length.out = 50), rep(0,50)))
+h2Fun=approxfun(x=tstep,y=c(seq(10,5, length.out = 50),rep(5,50)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,100)))
+st1Fun=approxfun(x=tstep,y=c(rep(20,100)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+
+sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#plotting
+par(mfcol=c(2,1), mar=c(1,1,1,1), oma=c(4,4,1,1))
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+text(x=60,y=1000,labels = "No stocking")
+plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim2[,1],sim2[,3],col='black',lwd=2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = c(1,1),lwd=2,bty = "n")
+text(x=60, y=1000, labels = "Stocking ps1 \n20 indv/yr")
+mtext("Year", side = 1, outer = T, line = 2.5)
+mtext("Population Size", side = 2, outer = T, line = 2.5)
 
 # #### OPTIM FUNC ####
 # source('q2Func.R')
