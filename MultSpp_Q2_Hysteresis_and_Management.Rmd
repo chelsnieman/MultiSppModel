@@ -113,15 +113,16 @@ mtext("Abundance", side = 2, outer = T, line = 2.5)
 mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
 ```
 
-Temporal factors and the timing of management interventions were found to play an important role in maintenance of a stable state. Here, we found that one year of timing difference in management could result in differing stable states, resulting in dominance of alternative species within the system (Figure 2). 
-*here I think we can include this plot which looks at one run of the model through time to show how management intervention even one year too late can lead to a regime shift. Maybe this replaces the plot above where we run the model to euqilibrium across a range of parms values or maybe it's worth having both of these.* *I think its worth including both for now - it's interesting that just one year difference can result in such a big difference. It might be something very much worth noting.* **If we do keep it, we should add a bit to the intro that discusses timing of management and what influence that plays.** 
 
-###Impact of stocking on system dynamics   
+### Impact of stocking on system dynamics   
 
-At low levels of stocking of Species 1, increased harvest resulted in dominance of Species 2. However, when stocking was increased, dominance of Species 1 also increased (Figure X). In model simulations in which Species 1 initially dominated in the system, low levels of stocking were all that were necessary to maintain the stable state of Species 1 dominance. Here, we found hysteresis resulted in increased likelihood that Species 2 would dominate the system at low levels of stocking. In systems in which Species 2 initially dominated, we found that low levels of stocking were not enough to result in an alternative stable state in which Species 1 dominates. In these systems, we found that the presence of hysteresis resulted in higher levels of stocking necessary in order to result in that shift in stable state. These results indicate that in order to manipulate the stable state of a system, it may be necessary to increase the magnitude of the stocking intervention. 
+At low levels of stocking of Species 1, increased harvest resulted in dominance of Species 2. However, when stocking was increased, dominance of Species 1 also increased (Figure 2). In model simulations in which Species 1 initially dominated in the system, low levels of stocking were all that were necessary to maintain the stable state of Species 1 dominance. Here, we found hysteresis resulted in increased likelihood that Species 2 would dominate the system at low levels of stocking. In systems in which Species 2 initially dominated, we found that low levels of stocking were not enough to result in an alternative stable state in which Species 1 dominates. In these systems, we found that the presence of hysteresis resulted in higher levels of stocking necessary in order to result in that shift in stable state. These results indicate that in order to manipulate the stable state of a system, it may be necessary to increase the magnitude of the stocking intervention. 
 
 ```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig 2. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 >sp2, red = sp2 > sp1. Blue line marks boundary where sp1 > sp2 by at least 100 individuals. This is shown as an exmaple of what a manager may care about, not just the sp1 is a little more abundant than sp2 but that the diffferent meets some minimum requirement."}
 ##### HEATMAPS #####
+
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
 
   ##### MAINTAIN W/ HYST. ####
 #matrix to hold output, starting with different harvest levels on each species
@@ -269,9 +270,9 @@ ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend 
 
 ```
 
-###Impact of Managment on system dyanmics  
-   * optimal strategy and magnitude  
-   * influence of hysteresis    
+### Impact of Managment on system dyanmics  
+  * optimal strategy and magnitude  
+  * influence of hysteresis    
    
 ````{r, echo=FALSE, cache=TRUE, cache.comments=F, fig.cap='Figure 3. Top row of figures show effect of management response in a system where hysteresis is considered. Bottom row shows effect of management without hysteresis. The left column is for a scenario where the goal is to flip the state from sp1 to sp2 dominating at equilibrium. The right column is for a scenario where the goal is to maintain the system in a state where sp1 dominates at equilibrium.'}
 
@@ -379,7 +380,7 @@ mtext("Population Size", side = 2, outer = T, line = 2.5)
 
 ### Optimal Strategies/management and stocking
 
-When we model the combination of stocking and harvest control on the system, we find evidence that **XX**. 
+When we model the combination of stocking and harvest control on the system, we find evidence that taking into account the hysteretic behavior of these systems dramatically alters what management actions are necessary to either keep a system in a desired state (Fig 2. a \& c) or flip a system into a desirable state (Fig 2. b \& d). 
 
 ```{r, echo=FALSE, cache=TRUE, cache.comments=FALSE, eval=TRUE, fig.cap="Figure X. System dynamics over a range of management interventions, including both stocking and harvest. Solid lines indicate no stocking, long dashes indicate stocking of species 1, short dashes indicate stocking of species 2."}
 
@@ -520,23 +521,24 @@ legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","gre
 
 
 # Discussion   
-Here, we found evidence that **XX**. These results highlight the importance of understanding the ecological interactions of fishes in a multispecies fishery. Further, our results indicate the importance of ecosystem-based multi-species management in systems where multiple species are targeted by recreational anglers.    
+Here, we found evidence that the hysteretic behavior that characterizes the transition between states plays an important role in determining what level of management action is necessary to acheive a manager's goals. Our models which include and exclude hysteresis generally show that when we assme those dynamics are absent from the system we will underestimate the magnitude of action necessary to either maintain or flip a system. These results highlight the importance of understanding the ecological interactions of fishes in a multispecies fishery. Further, our results indicate the importance of ecosystem-based multi-species management in systems where multiple species are targeted by recreational anglers.    
 
 Impact of hysteresis in our model  
 How timing of management and stocking are important factors to consider.   
 extrapolate to freshwater fish dynamics  
 * How our model is/is not a good representation of freshwater systems
-  + right now the parameter values, abundances, harvest and stocking rates, etc. are pretty abstract. We can still do more to ground this.
-  + the effect of refuge on model dynamics isn't as strong as the effect of stocking or harvesting, maybe we should've expected this?
+    + Right now the parameter values, abundances, harvest and stocking rates, etc. are pretty abstract. We can still do more to ground this.
+    + The effect of refuge on model dynamics isn't as strong as the effect of stocking or harvesting, maybe we should've expected this?
 * What is missing from our model.   
-  + fishing effort is controlled externally, it's not responsive to changes in catch rate. It's maybe not important to add in just to note that the model is set up this way (in q3 we change this and allow effort to respond to abundance within the model)
+    + Fishing effort is controlled externally, it's not responsive to changes in catch rate. It's maybe not important to add in just to note that the model is set up this way (in q3 we change this and allow effort to respond to abundance within the model)
 
 Optimal Management Strategies   
 * What did we learn from comparing stocking and controlling harvest?  
 * Management implications - do we use models like this to identify 'Early Warning Signs' of potential regime shift? [@litzow2016].   
 
 How can this be used by managers  
-* Strategies for maintaining a desired stable state  
+* Strategies for maintaining a desired stable state 
+
 Future work   
 * Ground truth this model with empirical data   
 * Think about how angler dynamics can impact fisheries outcomes   
