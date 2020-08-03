@@ -118,7 +118,7 @@ mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
 
 At low levels of stocking of Species 1, increased harvest resulted in dominance of Species 2. However, when stocking was increased, dominance of Species 1 also increased (Figure 2). In model simulations in which Species 1 initially dominated in the system, low levels of stocking were all that were necessary to maintain the stable state of Species 1 dominance. Here, we found hysteresis resulted in increased likelihood that Species 2 would dominate the system at low levels of stocking. In systems in which Species 2 initially dominated, we found that low levels of stocking were not enough to result in an alternative stable state in which Species 1 dominates. In these systems, we found that the presence of hysteresis resulted in higher levels of stocking necessary in order to result in that shift in stable state. These results indicate that in order to manipulate the stable state of a system, it may be necessary to increase the magnitude of the stocking intervention. 
 
-```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig 2. Effect of hysteresis on either maintaining sp1 dominance (A &C) or flipping to a state where sp 1 dominates (B &D). This is described for systems with and without hysteresis. Green = sp1 >sp2, red = sp2 > sp1. Blue line marks boundary where sp1 > sp2 by at least 100 individuals. This is shown as an exmaple of what a manager may care about, not just the sp1 is a little more abundant than sp2 but that the diffferent meets some minimum requirement."}
+```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Fig 2. Effect of hysteresis on either maintaining sp1 dominance (A&C) or flipping to a state where sp 1 dominates (B&D). This is described for systems with and without hysteresis. Green = sp1 >sp2, red = sp2 > sp1. Blue line marks boundary where sp1 > sp2 by at least 100 individuals. This is shown as an exmaple of what a manager may care about, not just the sp1 is a little more abundant than sp2 but that the diffferent meets some minimum requirement."}
 ##### HEATMAPS #####
 
 h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
@@ -265,7 +265,7 @@ d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
   geom_contour(aes(x=dfwo2$X, y=dfwo2$Y, z=dfwo2$diff), breaks = c(minDiff))
 
 #comparing with and without hysteresis plots together using cowplot package
-dev.new()
+#dev.new()
 ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
 ```
@@ -526,7 +526,7 @@ Here, we found evidence that the hysteretic behavior that characterizes the tran
 Impact of hysteresis in our model  
 How timing of management and stocking are important factors to consider.   
 extrapolate to freshwater fish dynamics  
-* How our model is/is not a good representation of freshwater systems
+* How our model is/is not a good representation of freshwater systems.
     + Right now the parameter values, abundances, harvest and stocking rates, etc. are pretty abstract. We can still do more to ground this.
     + The effect of refuge on model dynamics isn't as strong as the effect of stocking or harvesting, maybe we should've expected this?
 * What is missing from our model.   
