@@ -1,0 +1,127 @@
+---
+title: 'Q1: Theory and Data'
+author: "Colin Dassow and Chelsey Nieman"
+date: "8/6/2020"
+output: word_document
+bibliography: MultispeciesModelCite.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+packages <- c("citr","bibtex","tidyverse","knitr","tinytex")
+
+#some other packages and code to be used throughout the document
+# Colin setting his working directory so he can source the function that holds the model we'll run. We could always set up a code chunk here to hold that instead of sourcing another script. setwd("C:/Users/jones/BoxSync/NDstuff/Dissertation/4/MultiSppModel")
+library(deSolve)
+library(ggpubr)
+library(ggplot2)
+source("q2Func.R")
+```
+
+
+# Introduction  
+
+Fisheries management has traditionally focused on managing individual species in isolation of each other (**citation**). Through a series of management failures using this strategy we have come to recognize the important role that interspecific interactions play in mediating the outcome of management actions (@pine2009). Interspecific interactions in aquatic food webs can take place both within and between different trophic levels and the trophic position of many fishes changes with their life history stage (**cite some ontogenetic diet shift stuff, kitchell \& hodgson papers or others**). These shifting trophic statuses allow for different species of fish to simultaneously be predators, prey, and competitors throughout their lives. These complex interactions can lead to multiple stable equilibria within the system depending on both the strength and type of interaction between species with these interaction strengths favoring different species under different conditions. Aquatic ecosystems have long been recognized for their ability to exhibit alternative stable states (**cite clear-turbid water research**). Knowledge of these alternative stable states, and their drivers, present both challenges and opportunities to managers who seek to manage a system for a desired stable state (**hansen bass-walleye and climate change research, safe-operating-spaces lit, bluegill -bass research, some of our marine examples from the proposal**). 
+
+Recently fisheries research has begun to view fish population status as both a product of the prevailing conditions in an aquatic system and a driver reinforcing those conditions (**ciations**). A natural progression of this work has lead to the consideration of the impact human harvesting of these fish has on maintaining the stable state of the system. To date however, this work has largely fallen back to focusing on the harvest of a single species in a system where said species interacts with other food web constituents who are not harvested or otherwise targeted by fishers (**cite typical trophic triangle examples**). A next step further then would be to connect two growing themes of fisheries research, exploration of alternative stable states in fisheries, and, the recognition that targeted species do not exist in isolation of each other. 
+
+Intraguild predation, the consuming of a competitor for a shared resource, is common across taxa and known to produce alternative stable states (@may1977; @polis1989; @polis1992). In fisheries, one way these alternative stable states are maintained is through the processes of cultivation \& depensation (@walters2001) (**should we describe these or can we assume the reader knows these terms**). To date, research into how cultivation-depensation processes can lead to alternative stable states in fisheries has largely focused on systems with only one targeted species that is both intraguild predator and prey with a non-targeted species (@walters2001, **carpenterandbrock2007**). Furthermore, this work has largely taken place through examining model dynamics and has yet to bet supported by strong empirical evidence (**schroder2005, basket2006, persson2007, baum2009,huss2013**). 
+
+In recognition of the fact that the species humans target often interact with each other, and are often competitors, we propose a slightly more realistic model of a fishery that exhibits alternative stable states through competition between two, simultaneously targeted, intraguild predators. This kind of model has rarely been considered in fisheries research, with the little work done on the topic performed in commercial fisheries exclusively (**Essingto2015, Oken2016**). 
+
+Here we aim to describe how perturbations, in the form of harvest, to this sort of system can lead to alternative stable states through cultivation-depensation processes. We then examine an extensive data set on largemouth bass and walleye abundance in a recreational fishery where both are targeted, but harvested to differing degrees, as an empirical example of predictions made by our model. We predict that when recreational harvest on one the two species is very low, the system reduces to the typical trophic triangle described in @walters2001. This will allow even a moderate amount of harvest on the second species to drive a regime shift. We expect the trends in abundance and exploitation for walleye and largemouth bass recreational fisheries will exhibit similar dynamics. In our empirical data moderate exploitation of walleye compared to low exploitation of largemouth bass will drive changes in abundance and size structure of the two species shifting the system from one historically dominated by walleye to one dominated by largemouth bass. Further, we expect that in this system largemouth bass have begun cultivating conditions for themselves to dominate. In lakes with abundant largemouth bass and few walleye, reductions in walleye exploitation with a failure to recover for walleye populations would be a signal that this has occurred.
+
+
+
+# Methods
+
+## Base model
+
+We used a stage structured, fishery model from @biggs2009. Their original model contained trophic triangle dynamics between a harvested sport fish with juvenile and adult stages, and a single stage planktivore fish that was not part of the fishery. The model also contains basic foraging arena dynamics where juvenile sportfish and planktivores move between the foraging arena and refuge. In this model adult sportfish can prey upon their own juveniles and planktivores when they are in the foraging arena. Planktivores can prey on juvenile sportfish in both the refuge and the foraging arena. Harvest rate and the amount of refuge available to fish are both externally controlled.
+
+We modified this model by replacing the single stage planktivore with a second two-stage sport fish species. Adults of both species can predate on their own juveniles and juveniles of the opposite species when juveniles are present in the foraging arena. Juveniles of both species compete with each other for resources as well. Here too, harvest rate and the amount of refuge available to fish are both externally controlled. Our model is set up as a series of differential equations where adults are removed through catch and subsequent harvest ($-qE_1 A_1$) and natural mortality ($s_1-1$). New adults are produced by juveniles maturing at a constant rate($s_1J_1$). As an example we provide the equations for species 1 adults ($A_1$) and juveniles ($J_1$). The equations for species 2 are identical with reversed subscripts.
+
+$$\frac{dA_1}{dt} = -qE_1 A_1 + (s_1-1) A_1 + s_1J_1$$
+$$\frac{dJ_1}{dt} = -c_{J_1,A_1} J_1 A_1 - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1$$
+
+The model displays hysteretic behavior typical of systems were competing species are limited more strongly by each other than by themselves. This manifests itself in what is typically called a 'priority effect' where the initial abundance determines which species dominates. Here, the more abundant species is able to cultivate conditions for itself through predation on, and competition with, juveniles of the opposite species. The equilibrium abundances of the two competing species will depend on both the strength of harvest on each species and the strength of their effects on each other. 
+
+## Simulations 
+
+
+
+```{r,echo=FALSE, cash=TRUE, cash.comments=F}
+#This table populates parameter values - not formatted super nice yet. - can throw this in the supplement if we want it there. 
+  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.002,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+params <- as.data.frame(p)
+colnames(params) <- "Value"
+knitr::kable(params, caption="Paramater Values",  col.names = NA, row.names = NA)
+```
+
+# Results
+### Base Model Behavior
+
+```{r, echo=F,cache=T, fig.cap='Figure 1. Model run to equilibrium over a range of harvest parameters, no stocking. Top panel shows equilibrium abundances for the range of harvests when species 1 is initially dominant. Bottom panel shows equilibrium abundances for the range of harvests when species 2 is initially dominant.'}
+#other option for figure 1
+
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+tstep=1:300
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.002,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.002,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.002,v1=1,f1=2,
+      s2=0.1,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.002,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+par(mfcol=c(2,1), mar=c(1,1,3,1), oma=c(4,4,1,1))
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "",xlab = "", main = "Sp1 > Sp2")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+plot(store2$qEs,store2$A1,lwd=3, type='l', ylim = c(0, max(store2[,2:3],na.rm = T)),ylab = "", xlab = "", main = "Sp2 > Sp1")
+lines(store2$qEs,store2$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+mtext("Abundance", side = 2, outer = T, line = 2.5)
+mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
+```
+
+
+# Discussion   
+
+
+# Supplemental 
+
+## Figure graveyard
+
+# References
+
