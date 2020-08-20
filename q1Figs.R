@@ -78,5 +78,6 @@ plot(tstep,  sim[,2], type='l')
 lines(tstep, sim[,5]/sim[,2], col='green')
 
 plot(sim[,2], sim[,4]/sim[,2])
-plot(sim[,2], sim[,5]/sim[,2])
-points(sim[,3], sim[,4]/sim[,3],col='red')
+plot(sim[,2], sim[,5])
+plot(sim[,3], sim[,4],col='red')
+plot(sim[,2], sim[,3])
