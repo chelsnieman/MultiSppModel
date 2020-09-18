@@ -1,0 +1,48 @@
+---
+title: "ModelMathSummary"
+author: "Colin Dassow"
+date: "9/10/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Q2 Model Math
+
+### Our Model
+* Species 1
+  
+$$\frac{dA_1}{dt} = -qE_1 A_1 + m_1 A_1 + s_1J_1$$
+$$\frac{dJ_1}{dt} = -c_{J_1,A_1} J_1 A_1 - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1+S_1$$
+
+* Species 2
+  
+$$\frac{dA_2}{dt} = -qE_2 A_2 + m_2 A_2 + s_2J_2$$
+$$\frac{dJ_2}{dt} = -c_{J_2,A_2} J_2 A_2 - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+f_2A_2+S_1$$
+
+
+* the addition of juveniles to adults ($+ s_1J_1$) without subtracting from juveniles is fine I think. All juveniles are assumed to mature to adults each year and $s_j J_1$ is just the proportion that make it through winter to the next maturation interval. So each year (maturation interval) juveniles are only a product of the fecundity and number of adults minus  however many get eaten
+  + One thing that isn't clear is why they have cannibalism occur independent of the foraging arena dynamics, as if adult piscivores can eat juveniles in both places? I feel like maybe this is something we should change? I know we've talked about this before and decided to just stick with what Biggs had (which is really a model from two older cascade papers). I dug into those papers and neither one explains why cannibalism isn't refuge dependent.
+    - If we do stick with Biggs version of this, I'm not sure how to defend it if someone asks?
+    - If we change it this is how I would do it, currently the below version of the model sort of works but `ode()` sometimes throws warnings about not being able to integrate between time steps fully. This only seems to happen when harvest is either very low or very high but not when it's intermediate
+
+* Species 1
+  
+$$\frac{dA_1}{dt} = -qE_1 A_1 + m_1 A_1 + s_1J_1$$
+$$\frac{dJ_1}{dt} = - c_{J_1,J_2} J_1 J_2 
+-\frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}
+-\frac{c_{J_1,A_1}v_1 J_1 A_1}{h_1+v_1+c_{J_1,A_1}}
++f_1A_1+S_1$$
+
+* Species 2
+  
+$$\frac{dA_2}{dt} = -qE_2 A_2 + m_2 A_2 + s_2J_2$$
+$$\frac{dJ_2}{dt} = - c_{J_2,J_1} J_2 J_1
+-\frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}
+-\frac{c_{J_2,A_2}v_2 J_2 A_2}{h_2+v_2+c_{J_2,A_2}}
++f_2A_2+S_2$$
+    
+* one thing I learned that I didn't pick up the first time is that the way they've set up the model, planktivores and juveniles aren't necessarily in the same refuge, or at minimum they don't interact there. 
+    + in our model the juveniles interact with each other. These dynamics are independent of the refuge dynamics in our model. I think this makes sense because wherever one species juveniles can be then the other should be able to occupy the same area (unless we think the two species juveniles really do occupy different habitat).
