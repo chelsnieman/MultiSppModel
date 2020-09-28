@@ -15,8 +15,8 @@ tstep=1:300
 #approx funs for changing parms through time
 #qE1Fun=approxfun(x=tstep,y=c(seq(0,by=0.1111,length.out = 113),rep(0,187)))
 # qE2Fun=approxfun(x=tstep,y=seq(0,5,length.out = length(tstep)))
- qE1Fun=approxfun(x=tstep,y=rep(8, length(tstep)))
-qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+qE1Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
+qE2Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
 
 # h1Fun=approxfun(x=tstep,y=seq(0,10,length.out = length(tstep)))
 # h2Fun=approxfun(x=tstep,y=seq(0,10,length.out = length(tstep)))
@@ -27,14 +27,15 @@ st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
 st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
 
 #single model run
-p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1,f2=3)
+p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.005,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.004,cJ2J1=0.003,v2=1,f2=2)
 y0=c(10,10,0,0)
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 sim[max(tstep),]
-plot(tstep,sim[,2], type = 'l')
-lines(tstep,sim[,3],col ='darkgreen')
-##### OUTCOMES W/HYSTERESIS ####
+plot(sim[,1],sim[,2], type = 'l', ylim=c(0,max(sim[,2:3], na.rm = T)))
+lines(sim[,1],sim[,3],col ='green')
+
+#### OUTCOMES W/HYSTERESIS ####
 #matrix to hold output, starting with different harvest levels on each species
 
 qEs=seq(0,8,length.out = 15)
@@ -52,8 +53,8 @@ for(i in 1:nrow(df)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-      s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=3)
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.005,cJ1J2=0.003,v1=1,f1=2,
+      s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.004,cJ2J1=0.003,v2=1,f2=2)
   y0=c(10,10,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df$A1[i]=sim[nrow(sim)-1,2]
@@ -208,8 +209,8 @@ for(i in 1:nrow(df)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
   y0=c(1000,900,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df$A1[i]=sim[nrow(sim)-1,2]
@@ -250,8 +251,8 @@ for(i in 1:nrow(df)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
-      s2=0.1,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
   y0=c(900,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df2$A1[i]=sim[nrow(sim)-1,2]
@@ -289,8 +290,8 @@ for(i in 1:nrow(dfwo)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
-      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
+      s2=0.1,m2=0.9,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
   y0=c(1000,900,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo$A1[i]=sim[nrow(sim)-1,2]
@@ -331,8 +332,8 @@ for(i in 1:nrow(dfwo2)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
-      s2=0.1,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.004,cJ1A2=0.001,cJ1J2=0.001,v1=1,f1=6,
+      s2=0.1,m2=0.9,cJ2A2=0.004,cJ2A1=0.001,cJ2J1=0.001,v2=1,f2=6)
   y0=c(900,1000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo2$A1[i]=sim[nrow(sim)-1,2]

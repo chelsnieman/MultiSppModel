@@ -1,0 +1,105 @@
+---
+title: "More Q2 Math"
+author: "Colin Dassow"
+date: "9/18/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(deSolve)
+source('q2Func.R')
+```
+
+## Model Description
+
+* Species 1
+  
+$$\frac{dA_1}{dt} = -qE_1 A_1 + m_1 A_1 + s_1J_1$$
+$$\frac{dJ_1}{dt} = -c_{J_1,A_1} J_1 A_1 - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1+S_1$$
+
+* Species 2
+  
+$$\frac{dA_2}{dt} = -qE_2 A_2 + m_2 A_2 + s_2J_2$$
+$$\frac{dJ_2}{dt} = -c_{J_2,A_2} J_2 A_2 - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+f_2A_2+S_1$$
+
+In our version of the original Biggs et al. (2009) model we model two, stage-structured, fish populations that are simultaneously harvested. The population dynamics for the two species are identical. Unless noted, all parameters are constant through time. 
+  
+  Adults die in two ways, first, they are harvested at rate $-qEA$ where $qE$ is a model parameter I set. This can be a constant value through time or it can change through time. Second, they die naturally at rate $m$. New adults are produced annually (this is is in keeping with Biggs' description of the model, but is maybe not accurate) and given by $sJ$. This represents the number of juveniles that survive winter and enter the population as adults the following 'year'. 
+
+  Juveniles are removed from the population through one of three ways. The strength of each mortality source is represented by the parameter $c$ which can be thought of in general terms as the 'effect' of one species/life stage on another. Juveniles die through cannibalism $c_{J_1,A_1} J_1 A_1$ (read this as 'the effect of $A_1$ on $J_1$') which is independent of refuge in this model. In other words all juveniles are vulnerable to cannibalism. Juveniles can also die through predation by adults of the opposite species $\frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}$. These dynamics are dependent on refuge and are controlled by two rates, $h$ the rate at which juveniles leave refuge and enter the 'arena', and $v$ the rate at which they leave the arena and enter refuge. Changes in the amount of refuge available to fish are simulated through changes in the $h$ parameter which determines who many juveniles are in the arena. This can be set constant through time or time dependent in our model (just like Biggs'). The last way in which juveniles die is through direct competition with juveniles of the opposite species (this can be competition for resources or direct predation). This competition occurs independent of refuge dynamics, in other words all juveniles compete in all areas. This is based on the assumption that juveniles of both species occupy the same refuge and same arena. The three processes described above are currently the only way juveniles leave the juvenile life state. Biggs' model assumes all those not claimed by the 3 sources of mortality above then mature to adults. These fish then survive at some proportion $s$ to join the adult population ($+sJ$). Juveniles are produced through natural reproduction, $fA$, and stocking $S$. Stocking can be dynamic or constant in our model. 
+
+
+## Simulations
+
+Here I played around with including, or not, the subtraction of juveniles from their state equation. The only thing I changed between these two plots below is whether or not juveniles are subtracted from the juvenile equation. What happens is that when you subtract juveniles maturing to adults from their state equation, the time it takes for species 2 to get to equilibrium lengthens.
+
+```{r}
+# model simulation without subtracting surviving juveniles from
+simBiggsQ2<-function(t,y,params){
+  A1<-y[1]
+  A2<-y[2]
+  J1<-y[3]
+  J2<-y[4]
+  with(as.list(params),{
+    dA1dt=-qE1Fun(t)*A1+m1*A1+s1*J1
+    dA2dt=-qE2Fun(t)*A2+m2*A2+s2*J2
+    dJ1dt=-cJ1J2*J2*J1-cJ1A1*J1*A1-((cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2))+f1*A1+st1Fun(t)
+    dJ2dt=-cJ2J1*J1*J2-cJ2A2*J2*A2-((cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1))+f2*A2+st2Fun(t)
+    return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
+  })
+}
+tstep=1:300
+
+qE1Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
+qE2Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+#single model run
+p=c(s1=0.1,m1=0.9,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,m2=0.9,cJ2A2=0.001,cJ2A1=0.4,cJ2J1=0.003,v2=1,f2=2)
+y0=c(10,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+#sim[max(tstep),]
+plot(sim[,1],sim[,2], type = 'l', ylim=c(0,max(sim[,2:3], na.rm = T)), xlab = 'TimeStep', ylab = 'Abundance', main = 'Juveniles Not Subtracted')
+lines(sim[,1],sim[,3],col ='green')
+```
+
+```{r}
+
+simBiggsQ2<-function(t,y,params){
+  A1<-y[1]
+  A2<-y[2]
+  J1<-y[3]
+  J2<-y[4]
+  with(as.list(params),{
+    dA1dt=-qE1Fun(t)*A1+m1*A1+s1*J1
+    dA2dt=-qE2Fun(t)*A2+m2*A2+s2*J2
+    dJ1dt=-cJ1J2*J2*J1-cJ1A1*J1*A1-((cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2))-s1*J1+f1*A1+st1Fun(t)
+    dJ2dt=-cJ2J1*J1*J2-cJ2A2*J2*A2-((cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1))-s2*J2+f2*A2+st2Fun(t)
+    return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
+  })
+}
+
+#run where juveniles are subtracted
+tstep=1:300
+
+qE1Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
+qE2Fun=approxfun(x=tstep,y=rep(1.8, length(tstep)))
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+#single model run
+p=c(s1=0.1,m1=0.9,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,m2=0.9,cJ2A2=0.001,cJ2A1=0.4,cJ2J1=0.003,v2=1,f2=2)
+y0=c(10,10,0,0)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+#sim[max(tstep),]
+plot(sim[,1],sim[,2], type = 'l', ylim=c(0,max(sim[,2:3], na.rm = T)), xlab = 'TimeStep', ylab = 'Abundance', main = 'Juveniles Subtracted')
+lines(sim[,1],sim[,3],col ='green')
+legend('right', legend = c('Sp_1', 'Sp_2'), lty = 1, col = c('black', 'green'))
+```
+
