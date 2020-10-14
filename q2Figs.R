@@ -560,7 +560,7 @@ dfwo$J2=numeric(nrow(dfwo))
 for(i in 1:nrow(dfwo)){
   tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
-  qE2Fun=approxfun(x=tstep,y=rep(4, length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
   p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
@@ -578,7 +578,7 @@ dfwo$outcome=ifelse(dfwo$A1-dfwo$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = dfwo)+theme_classic()
 c=vz+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$diff))+
   scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(dfwo$diff), 1, max(dfwo$dif)), labels=c("sp2", "even", "sp1"))+
-  labs(x="Harvest Rate", y="Stocked fish", title = "Sp2 CPUE=4, sp1>sp2")+
+  labs(x="Harvest Rate", y="Stocked fish", title = "Sp2 CPUE=2, sp1>sp2")+
   geom_contour(aes(x=dfwo$X, y=dfwo$Y, z=dfwo$diff), breaks = c(minDiff))
 
 #### FLIP W/ sp2 harv ####
@@ -594,7 +594,7 @@ dfwo2$J2=numeric(nrow(dfwo2))
 for(i in 1:nrow(dfwo2)){
   tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(dfwo2$X[i], length(tstep)))
-  qE2Fun=approxfun(x=tstep,y=rep(4, length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
   p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
@@ -612,7 +612,7 @@ dfwo2$outcome=ifelse(dfwo2$A1-dfwo2$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = dfwo2)+theme_classic()
 d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
   scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(dfwo2$diff), 1, max(dfwo2$dif)), labels=c("sp2", "even", "sp1"))+
-  labs(x="Harvest Rate", y="Stocked fish", title = " Sp2 CPUE=4 sp2>sp1")+
+  labs(x="Harvest Rate", y="Stocked fish", title = " Sp2 CPUE=2 sp2>sp1")+
   geom_contour(aes(x=dfwo2$X, y=dfwo2$Y, z=dfwo2$diff), breaks = c(minDiff))
 
 #comparing with and without hysteresis plots together using cowplot package
@@ -634,7 +634,7 @@ dfT$J2=numeric(nrow(dfT))
 
 for(i in 1:nrow(dfT)){
   tstep=1:100
-  qE1Fun=approxfun(x=tstep,y=rep(4, length(tstep)))
+  qE1Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(dfT$X[i], length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfT$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
@@ -649,17 +649,81 @@ for(i in 1:nrow(dfT)){
 }
 
 dfT$diff=dfT$A1-dfT$A2
+dfT$qNorm=(dfT$X-min(dfT$X))/(max(dfT$X)-min(dfT$X))
+dfT$sNorm=(dfT$Y-min(dfT$Y))/(max(dfT$Y)-min(dfT$Y))
 dfT$outcome=ifelse(dfT$A1-dfT$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = dfT)+theme_classic()
-d=vz+geom_tile(aes(x=dfT$X, y=dfT$Y, fill=dfT$diff))+
-  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="", breaks=c(min(dfT$diff), 1, max(dfT$dif)), labels=c("sp2", "even", "sp1"))+
-  labs(x="Harvest Rate", y="Stocked fish")+
-  geom_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))+
-  geom_label_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))
+d=vz+geom_tile(aes(x=dfT$qNorm, y=dfT$sNorm, fill=dfT$A1))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 \nDominance", breaks=c(min(dfT$diff), 1, max(dfT$diff)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Sp2 harvest Rate", y="Sp1 stocked fish")#+
+  #geom_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))+
+  #geom_label_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))
 d
 
+plot(dfT$diff,dfT$qNorm/dfT$sNorm, pch=16)
+plot(dfT$qNorm/dfT$sNorm, pch=16)
+
+# different version of the above figure
+# I run model to equilibrium first over a  range of sp1 stocking and then separately over a range of sp2 harvest and then plot those against each other
+
+qEs=seq(0,8,length.out = 30)
+dfHarv2=data.frame(qEs=qEs,A1=numeric(length(qEs)),A2=numeric(length(qEs)),J1=numeric(length(qEs)),J2=numeric(length(qEs)))
+sto=seq(0,2000, length.out = 30)
+dfSto1=data.frame(sto=sto,A1=numeric(length(sto)),A2=numeric(length(sto)),J1=numeric(length(sto)),J2=numeric(length(sto)))
+
+for(i in 1:nrow(dfHarv2)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(dfHarv2$qEs[i], length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  y0=c(100,1000,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfHarv2$A1[i]=sim[nrow(sim)-1,2]
+  dfHarv2$A2[i]=sim[nrow(sim)-1,3]
+  dfHarv2$J1[i]=sim[nrow(sim)-1,4]
+  dfHarv2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+for(i in 1:nrow(dfSto1)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfSto1$sto[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=4,
+      s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.003,cJ2J1=0.003,v2=1,f2=6)
+  y0=c(100,1000,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfSto1$A1[i]=sim[nrow(sim)-1,2]
+  dfSto1$A2[i]=sim[nrow(sim)-1,3]
+  dfSto1$J1[i]=sim[nrow(sim)-1,4]
+  dfSto1$J2[i]=sim[nrow(sim)-1,5]
+}
+
+
+dfHarv2$diff=dfHarv2$A1-dfHarv2$A2
+dfHarv2$qNorm=(dfHarv2$qEs-min(dfHarv2$qEs))/(max(dfHarv2$qEs)-min(dfHarv2$qEs))
+dfHarv2$outcome=ifelse(dfHarv2$A1-dfHarv2$A2 < minDiff,"darkgreen", "darkred")
+dfSto1$diff=dfSto1$A1-dfSto1$A2
+dfSto1$sNorm=(dfSto1$sto-min(dfSto1$sto))/(max(dfSto1$sto)-min(dfSto1$sto))
+dfSto1$outcome=ifelse(dfSto1$A1-dfSto1$A2 < minDiff,"darkgreen", "darkred")
+ #got this far then wasn't sure what to do, didn't work out the way I thought
+vz=ggplot(data = dfHarv2)+theme_classic()
+d=vz+geom_tile(aes(x=dfHarv2$X, y=dfHarv2$Y, fill=dfHarv2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 \nDominance", breaks=c(min(dfHarv2$diff), 1, max(dfHarv2$diff)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Sp2 harvest Rate", y="Sp1 stocked fish")#+
+#geom_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))+
+#geom_label_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))
+d
+
+
+
 #### DELAY A FLIP_new 9.28.2020 ####
-#figure on delaying a transition
+
+#figure on delaying a transition using stocking
 
 #running to sp1 dominating before habitat decline
 tstep=1:200
@@ -714,3 +778,73 @@ lines(sim2[,1],sim2[,3],col='black',lwd=2)
 text(x=450, y=1500, labels = "Stocking sp1 \n80 indv/yr")
 mtext("Year", side = 1, outer = T, line = 2.5)
 mtext("Population Size", side = 2, outer = T, line = 2.5)
+
+
+#figure on delaying a transition using harvest sp2
+
+#running to sp1 dominating before habitat decline
+tstep=1:200
+h1Fun=approxfun(x=tstep,y=c(rep(10,200)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,200)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+st1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.05,cJ2J1=0.003,v2=1,f2=2)
+y0=c(500,100,0,0)
+simPre=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#check to make sure it's at equilibrium
+# plot(simPre[,1], simPre[,2],type='l',ylim=c(0,max(simPre[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+# lines(simPre[,1],simPre[,3],col='black',lwd=2)
+
+#habitat decline and stocking
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,20, length.out = 100),rep(20,300)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st2Fun=approxfun(x=tstep,y=c(rep(0,200),rep(10,50),rep(0,250)))#this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1,f2=2)
+y0=simPre[199,2:5]
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#stocking delays the transition to sp2
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,20, length.out = 100),rep(20,300)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(2,200)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st2Fun=approxfun(x=tstep,y=c(rep(0,200),rep(10,50),rep(0,250))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amoutn of harvest that declines to 0
+
+sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#plotting
+par(mfcol=c(2,1), mar=c(1,1,1,1), oma=c(4,4,1,1))
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+text(x=375,y=1500,labels = "No Harvest Species 2")
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = c(1,1),lwd=2,bty = "n")
+
+plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim2[,1],sim2[,3],col='black',lwd=2)
+text(x=300, y=1250, labels = "Harvest Species 2")
+mtext("Year", side = 1, outer = T, line = 2.5)
+mtext("Population Size", side = 2, outer = T, line = 2.5)
+
+
+#### 3D PLOT ####
+
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
+df=expand.grid(X=qEs,Y=sto)
+df$A1=numeric(nrow(df))
+df$A2=numeric(nrow(df))
+df$J1=numeric(nrow(df))
+df$J2=numeric(nrow(df))
+minDiff=100
+
