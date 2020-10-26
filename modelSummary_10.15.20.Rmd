@@ -1,0 +1,47 @@
+---
+title: "Model Sumamry"
+author: "Colin Dassow"
+date: "10/15/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(deSolve)
+source('q2Func.R')
+```
+
+## Model Description
+
+* Species 1
+  
+$$\frac{dA_1}{dt} = -qE_1 A_1 + m_1 A_1 + s_1J_1$$
+$$\frac{dJ_1}{dt} = - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_1}v_1 J_1 A_1}{h_1+v_1+c_{J_1,A_1}} - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1+S_1$$
+
+* Species 2
+  
+$$\frac{dA_2}{dt} = -qE_2 A_2 + m_2 A_2 + s_2J_2$$
+$$\frac{dJ_2}{dt} = - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_2}v_2 J_2 A_2}{h_2+v_2+c_{J_2,A_2}} - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+f_2A_2+S_2$$
+
+In our version of the original Biggs et al. (2009) model we model two, stage-structured, fish populations that are simultaneously harvested. The population dynamics for the two species are identical. Unless noted, all parameters are constant through time. 
+  
+  Adults die in two ways, first, they are harvested at rate $-qEA$ where $qE$ is a model parameter we set. This can be a constant value through time or it can change through time. Second, they die naturally at rate $m$. New adults are produced annually (this is is in keeping with Biggs' description of the model, but is maybe not accurate) and given by $sJ$. This represents the number of juveniles that survive winter and enter the population as adults the following 'year'. 
+
+  Juveniles are removed from the population through one of three ways. The strength of each mortality source is represented by the parameter $c$ which can be thought of in general terms as the 'effect' of one species/life stage on another. Juveniles die through cannibalism $c_{J_1,A_1} J_1 A_1$ (read this as 'the effect of $A_1$ on $J_1$') which is dependent on refuge dynamics in this model which is different from Biggs et al. (2009). Juveniles can also die through predation by adults of the opposite species $\frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}$. These dynamics are dependent on refuge (as in Bigg's model) and are controlled by two rates, $h$ the rate at which juveniles leave refuge and enter the 'arena', and $v$ the rate at which they leave the arena and enter refuge. Changes in the amount of refuge available to fish are simulated through changes in the $h$ parameter which determines how many juveniles are in the arena. This can be set constant through time or time dependent in our model (just like Biggs'). The last way in which juveniles die is through direct competition with juveniles of the opposite species (this can be competition for resources or direct predation). This competition occurs independent of refuge dynamics, in other words all juveniles compete in all areas. This is based on the assumption that juveniles of both species occupy the same refuge and same arena. The three processes described above are currently the only way juveniles leave the juvenile life state. Biggs' model assumes all those not claimed by the 3 sources of mortality above then mature to adults. These fish then survive at some proportion $s$ to join the adult population ($+sJ$). I've run the model with with the subtraction of juveniles from their state equation and without is (which is how I've kept it) and the results don't change meaningfully, it just slows how long it takes to reach equilibrium. Juveniles are produced through natural reproduction, $fA$, and stocking $S$. Stocking can be dynamic or constant in our model. 
+
+```{r,echo=FALSE, cash=TRUE, cash.comments=F}
+#This table populates parameter values - not formatted super nice yet. - can throw this in the supplement if we want it there. 
+  p=c(s1='Juvenile survival sp1',m1='adult natural mortality',cJ1A1='cannibalism',cJ1A2='predation by sp2',cJ1J2='Juvenile competition',v1='rate sp1 juveniles enter FA',f1='fecundidty sp1', h1='rate sp1 juveniles leave FA', S1='stocking species 1', qE1='harvest rate sp1',
+      s2='Juvenile survival sp2',m2='adult natural mortality',cJ2A2='cannibalism',cJ2A1='predation by sp1',cJ2J1='Juvenile competition',v2='rate sp2 juveniles enter FA',f2='fecundidty sp1', h2='rate sp2 juveniles leave FA', S2='stocking species 2', qE2='harvest rate sp2')
+params <- as.data.frame(p)
+colnames(params) <- "Parm definitions"
+knitr::kable(params, caption="",  col.names = NA, row.names = NA)
+```
+
+## Simulations
+
+Aside from adjusting key parameters to represent specific scenarios (things like $-qE$, $h$, $S$) one other thing that influences model outcome is the initial abundances. Unless the species interaction parameters (i.e. $c_{J_1,A_1}$) as skewed to favor a species, the initially more abundance species will tend to dominate. 
+
+Right now I typically run simulations with a pretty conservative parameterization. I keep everything equal except the effect of each species' adults on the opposite's juveniles ($c_{J_1,A_2}$,$c_{J_2,A_1}$). Since we've been thinking about this with the bass-walleye relationship in mind I have sp1 (walleye) set to have less of an effect on sp2 (bass) juveniles than adult bass have on walleye juveniles ($c_{J_1,A_2}$ = 0.5,$c_{J_2,A_1}$ = 0.03). There are likely other parameters (like fecundity) that should skew in favor of bass but for now I've kept all that equal between the two to simplify things. 
+
+
