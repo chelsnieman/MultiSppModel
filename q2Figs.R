@@ -26,11 +26,11 @@ st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
 st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
 
 #single model run
-p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.005,cJ1J2=0.003,v1=1,f1=2,
-    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.004,cJ2J1=0.003,v2=1,f2=2)
-y0=c(10,10,0,0)
+p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.1,m2=0.5,cJ2A2=0.003,cJ2A1=0.5,cJ2J1=0.003,v2=1,f2=2)
+y0=c(1000,1000,0,0)
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
-sim[max(tstep),]
+sim[max(tstep)-1,]
 plot(sim[,1],sim[,2], type = 'l', ylim=c(0,max(sim[,2:3], na.rm = T)))
 lines(sim[,1],sim[,3],col ='green')
 
@@ -369,8 +369,8 @@ qE1Fun=approxfun(x=tstep,y=c(rep(0,100)))
 qE2Fun=approxfun(x=tstep,y=c(rep(0,100)))
 st1Fun=approxfun(x=tstep,y=c(rep(0,100)))
 st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-p=c(s1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-    s2=0.5,cJ2A2=0.001,cJ2A1=0.05,cJ2J1=0.003,v2=1,f2=2)
+p=c(s1=0.5,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
+    s2=0.5,m2=0.5,cJ2A2=0.001,cJ2A1=0.05,cJ2J1=0.003,v2=1,f2=2)
 y0=c(200,100,0,0)
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
@@ -651,9 +651,9 @@ for(i in 1:nrow(dfT)){
 dfT$diff=dfT$A1-dfT$A2
 dfT$qNorm=(dfT$X-min(dfT$X))/(max(dfT$X)-min(dfT$X))
 dfT$sNorm=(dfT$Y-min(dfT$Y))/(max(dfT$Y)-min(dfT$Y))
-dfT$outcome=ifelse(dfT$A1-dfT$A2 < minDiff,"darkgreen", "darkred")
+#dfT$outcome=ifelse(dfT$A1-dfT$A2 < minDiff,"darkgreen", "darkred")
 vz=ggplot(data = dfT)+theme_classic()
-d=vz+geom_tile(aes(x=dfT$qNorm, y=dfT$sNorm, fill=dfT$A1))+
+d=vz+geom_tile(aes(x=dfT$qNorm, y=dfT$sNorm, fill=dfT$diff))+
   scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 \nDominance", breaks=c(min(dfT$diff), 1, max(dfT$diff)), labels=c("sp2", "even", "sp1"))+
   labs(x="Sp2 harvest Rate", y="Sp1 stocked fish")#+
   #geom_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))+
@@ -733,8 +733,8 @@ qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
 qE2Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
 st1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
 st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.05,cJ2J1=0.003,v2=1,f2=2)
+p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
 y0=c(500,100,0,0)
 simPre=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
@@ -742,27 +742,27 @@ simPre=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 # plot(simPre[,1], simPre[,2],type='l',ylim=c(0,max(simPre[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
 # lines(simPre[,1],simPre[,3],col='black',lwd=2)
 
-#habitat decline and stocking
+#if left unchecked
 tstep=1:500
 h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
-h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,20, length.out = 100),rep(20,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10, length.out = 100),rep(10,300)))
 qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
 qE2Fun=approxfun(x=tstep,y=c(rep(0,500)))
 st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,200),rep(10,50),rep(0,250)))#this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amoutn of harvest that declines to 0
-p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
-    s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1,f2=2)
+st2Fun=approxfun(x=tstep,y=c(rep(4,500)))#this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
 y0=simPre[199,2:5]
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
 #stocking delays the transition to sp2
 tstep=1:500
 h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
-h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,20, length.out = 100),rep(20,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10, length.out = 100),rep(10,300)))
 qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
 qE2Fun=approxfun(x=tstep,y=c(rep(0,500)))
 st1Fun=approxfun(x=tstep,y=c(rep(0,100),rep(80,400)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,200),rep(10,50),rep(0,250))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amoutn of harvest that declines to 0
+st2Fun=approxfun(x=tstep,y=c(rep(4,500))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
 
 sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
@@ -799,27 +799,27 @@ simPre=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 # plot(simPre[,1], simPre[,2],type='l',ylim=c(0,max(simPre[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
 # lines(simPre[,1],simPre[,3],col='black',lwd=2)
 
-#habitat decline and stocking
+#if left unchecked
 tstep=1:500
 h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
-h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,20, length.out = 100),rep(20,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10, length.out = 100),rep(10,300)))
 qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
 qE2Fun=approxfun(x=tstep,y=c(rep(0,500)))
 st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,200),rep(10,50),rep(0,250)))#this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+st2Fun=approxfun(x=tstep,y=c(rep(5,500)))#this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
 p=c(s1=0.1,m1=0.9,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,f1=2,
     s2=0.1,m2=0.9,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1,f2=2)
 y0=simPre[199,2:5]
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
-#stocking delays the transition to sp2
+#harvest delays the transition to sp2
 tstep=1:500
-h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
-h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,20, length.out = 100),rep(20,300)))
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0,length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10,length.out = 100),rep(10,300)))
 qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
-qE2Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(2,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,.5,length.out = 200), rep(.5,200)))
 st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,200),rep(10,50),rep(0,250))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amoutn of harvest that declines to 0
+st2Fun=approxfun(x=tstep,y=c(rep(5,500))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
 
 sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 
@@ -827,15 +827,66 @@ sim2=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 par(mfcol=c(2,1), mar=c(1,1,1,1), oma=c(4,4,1,1))
 plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
 lines(sim[,1],sim[,3],col='black',lwd=2)
-text(x=375,y=1500,labels = "No Harvest Species 2")
+text(x=375,y=1000,labels = "No Harvest Species 2")
 legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = c(1,1),lwd=2,bty = "n")
 
 plot(sim2[,1],sim2[,2],type='l',ylim=c(0,max(sim2[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
 lines(sim2[,1],sim2[,3],col='black',lwd=2)
-text(x=300, y=1250, labels = "Harvest Species 2")
+text(x=300, y=1000, labels = "Harvest Species 2 \n 25% of sp1 harvest")
 mtext("Year", side = 1, outer = T, line = 2.5)
 mtext("Population Size", side = 2, outer = T, line = 2.5)
 
+
+
+#### RUNNING TO EQUILIBRIUM ACROSS A RANGE OF HARVESTS ####
+
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+tstep=1:300
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.002,v1=1,f1=2,
+      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.002,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.002,v1=1,f1=2,
+      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.5,cJ2J1=0.002,v2=1,f2=2)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+par(mfcol=c(2,1), mar=c(1,1,3,1), oma=c(4,4,1,1))
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "",xlab = "", main = "Sp1 > Sp2")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+plot(store2$qEs,store2$A1,lwd=3, type='l', ylim = c(0, max(store2[,2:3],na.rm = T)),ylab = "", xlab = "", main = "Sp2 > Sp1")
+lines(store2$qEs,store2$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+mtext("Abundance", side = 2, outer = T, line = 2.5)
+mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
 
 #### 3D PLOT ####
 

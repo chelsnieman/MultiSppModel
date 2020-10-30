@@ -16,12 +16,12 @@ source('q2Func.R')
 * Species 1
   
 $$\frac{dA_1}{dt} = -qE_1 A_1 + m_1 A_1 + s_1J_1$$
-$$\frac{dJ_1}{dt} = - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_1}v_1 J_1 A_1}{h_1+v_1+c_{J_1,A_1}} - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1+S_1$$
+$$\frac{dJ_1}{dt} = - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_1}v_1 J_1 A_1}{h_1+v_1+c_{J_1,A_1}} - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+\alpha_1A_1e^{-\beta A_1}+S_1$$
 
 * Species 2
   
 $$\frac{dA_2}{dt} = -qE_2 A_2 + m_2 A_2 + s_2J_2$$
-$$\frac{dJ_2}{dt} = - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_2}v_2 J_2 A_2}{h_2+v_2+c_{J_2,A_2}} - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+f_2A_2+S_2$$
+$$\frac{dJ_2}{dt} = - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_2}v_2 J_2 A_2}{h_2+v_2+c_{J_2,A_2}} - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+\alpha_2A_2e^{-\beta_2 A_2}+S_2$$
 
 In our version of the original Biggs et al. (2009) model we model two, stage-structured, fish populations that are simultaneously harvested. The population dynamics for the two species are identical. Unless noted, all parameters are constant through time. 
   

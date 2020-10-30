@@ -66,8 +66,8 @@ simBiggsQ2<-function(t,y,params){
   with(as.list(params),{
     dA1dt=-qE1Fun(t)*A1-m1*A1+s1*J1
     dA2dt=-qE2Fun(t)*A2-m2*A2+s2*J2
-    dJ1dt=-cJ1J2*J2*J1-((cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2))-((cJ1A1*v1*A1*J1)/(h1Fun(t)+v1+cJ1A1*A1))-s1*J1+(9.88*A1*exp(-0.29*A1))+st1Fun(t)
-    dJ2dt=-cJ2J1*J1*J2-((cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1))-((cJ2A2*v2*A2*J2)/(h2Fun(t)+v2+cJ2A2*A2))-s2*J2+(9.88*A2*exp(-0.29*A2))+st2Fun(t)
+    dJ1dt=-cJ1J2*J2*J1-((cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2))-((cJ1A1*v1*A1*J1)/(h1Fun(t)+v1+cJ1A1*A1))-s1*J1+(5000*A1/(500+A1))+st1Fun(t)
+    dJ2dt=-cJ2J1*J1*J2-((cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1))-((cJ2A2*v2*A2*J2)/(h2Fun(t)+v2+cJ2A2*A2))-s2*J2+(5000*A2/(500+A2))+st2Fun(t)
     return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
   })
 }

@@ -1,0 +1,27 @@
+---
+title: "Multispecies Model"
+author: "Colin Dassow, Chelsey Nieman, Chris Solomon, Greg Sass, and Stuart Jones"
+date: "10/27/2020"
+output: pdf_document
+---
+
+## Model Description
+
+* Species 1
+  
+$$\frac{dA_1}{dt} = -qE_1 A_1 + m_1 A_1 + s_1J_1$$
+$$\frac{dJ_1}{dt} = - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_1}v_1 J_1 A_1}{h_1+v_1+c_{J_1,A_1}} - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+\alpha_1A_1e^{-\beta_1 A_1}+S_1$$
+
+* Species 2
+  
+$$\frac{dA_2}{dt} = -qE_2 A_2 + m_2 A_2 + s_2J_2$$
+$$\frac{dJ_2}{dt} = - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_2}v_2 J_2 A_2}{h_2+v_2+c_{J_2,A_2}} - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+\alpha_2A_2e^{-\beta_2 A_2}+S_2$$
+
+```{r,echo=FALSE, cash=TRUE, cash.comments=F}
+#This table populates parameter values - not formatted super nice yet. - can throw this in the supplement if we want it there. 
+  p=c(s1='Juvenile survival sp1',m1='adult natural mortality',cJ1A1='cannibalism',cJ1A2='predation by sp2',cJ1J2='Juvenile competition',v1='rate sp1 juveniles enter FA',a1='Ricker parm alpha', b1='Ricker parm beta', h1='rate sp1 juveniles leave FA', S1='stocking species 1', qE1='harvest rate sp1',
+      s2='Juvenile survival sp2',m2='adult natural mortality',cJ2A2='cannibalism',cJ2A1='predation by sp1',cJ2J1='Juvenile competition',v2='rate sp2 juveniles enter FA',a2='Ricker parm alpha', b2='Ricker parm beta', h2='rate sp2 juveniles leave FA', S2='stocking species 2', qE2='harvest rate sp2')
+params <- as.data.frame(p)
+colnames(params) <- "Parm definitions"
+knitr::kable(params, caption="",  col.names = NA, row.names = NA)
+```
