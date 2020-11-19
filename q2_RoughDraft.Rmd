@@ -1,28 +1,46 @@
 ---
 title: "Q2"
 author: "Colin Dassow, Chelsey Nieman, Chris Solomon, Greg Sass, and Stuart Jones"
-date: "10/26/2020"
+date: "11/3/2020"
 output: word_document
 ---
 
 ```{r setup, include=FALSE}
 packages <- c("citr","bibtex","tidyverse","knitr","tinytex")
+lapply(c("deSolve","ggpubr","ggplot2"),require,character.only=TRUE)
+#model function
+# qE - harvest, species specific, this is what is controlled by 'regulations'
+# s - juvenile overwinter survival, species specific
+# m - adult natural mortality rate, species specific
+# cJA - effect of adults of a given species on juveniles of a given species (cover cannibalism or interspecific predation, both happen in foraging arena)
+# cJJ - effect of juveniles of one species on juveniles of the other (can be predation or competition)
+# h - rate at which juveniles leave foraging arena for refuge, species specific
+# v - rate at which juveniles enter foraging arena from refuge, species specific
+# stock1 - annual stocked num spp1
+# stock2 - annual stocked num spp2
+simBiggsQ2<-function(t,y,params){
+  A1<-y[1]
+  A2<-y[2]
+  J1<-y[3]
+  J2<-y[4]
+  with(as.list(params),{
+    dA1dt=-qE1Fun(t)*A1-m1*A1+s1*J1
+    dA2dt=-qE2Fun(t)*A2-m2*A2+s2*J2
+    dJ1dt=-cJ1J2*J2*J1-((cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2))-((cJ1A1*v1*A1*J1)/(h1Fun(t)+v1+cJ1A1*A1))-s1*J1+(5000*A1/(500+A1))+st1Fun(t)
+    dJ2dt=-cJ2J1*J1*J2-((cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1))-((cJ2A2*v2*A2*J2)/(h2Fun(t)+v2+cJ2A2*A2))-s2*J2+(5000*A2/(500+A2))+st2Fun(t)
+    return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
+  })
+}
 
-#some other packages and code to be used throughout the document
-# Colin setting his working directory so he can source the function that holds the model we'll run. We could always set up a code chunk here to hold that instead of sourcing another script. setwd("C:/Users/jones/BoxSync/NDstuff/Dissertation/4/MultiSppModel")
-library(deSolve)
-library(ggpubr)
-library(ggplot2)
-source("q2Func.R")
 ```
 
 # Introduction
-  Interactions between species are often overlooked in natural resource management and as human impacts on our ecosystems continue to grow, so does the need to move from single species management to ecosystem based management. Ecosystem based management takes a holistic approach to managing natural resources that includes the interactions of humans with ecosystems. Ecosystem-based management can be difficult to implement due to the complex nature of social ecological systems where the ecosystem services and states we are interested in are integrated within larger systems ranging across governance boundaries from local to international governance. Although ecosystem-based management implementation may be difficult, it is nevertheless warranted. Aquatic systems, including fisheries, provide excellent examples to explore the difficulties of implementing ecosystem-based management.  Counterintuitive responses by fish populations to management have shown that in many cases a linear, single-species focused view of these systems can lead managers to make decisions that, in hindsight, are ineffective or even detrimental to these systems (Hansen et al. 2015; Sass and Shaw 2020). In some situations, the stable state of a system may shift to an undesirable state as a result of these actions, or an undesirable state may be reinforced despite well intentioned action by managers (Carpenter 2003; Carpenter et al. 2017). Aquatic systems provide a myriad of benefits to society through ecosystem services that are culturally and economically valuable; the loss of these ecosystem services due to the reinforcement of, or shift to, an undesirable stable state would likely have a negative effect on society. For example, human-induced eutrophication can result in XX (CITATION). Within fisheries, XX (Citation). 
-
-	Several examples of the causes and effects of ineffective management action on fisheries were reviewed in Pine et al. (2009). Here, Pine et al. (2009) used several case studies to explore why predictions for ecosystem responses to management actions have been wrong in both simple and complex systems. A central theme of these incorrect predictions was a failure to consider interactions between multiple species and life stages. In aquatic communities, species may be in competition (CITATION), which, when coupled with human influences, can directly affect multiple species simultaneously (a non- fishery example here?). Ultimately, through direct and indirect effects cascading through the community, human disturbance in these systems is likely to affect all community members in various ways from direct harvesting of these species to changing environmental conditions leading to loss of habitat and food resources (Carpenter et al. 2017; Sass et al. 2017). Human effects on slow moving, abiotic variables like climate will also alter community dynamics. This has been well described in aquatic communities (e.g., eutrophication, lake browning, bass-walleye degree days, SOS). Because of the varied ways in which humans influence these systems, and the numerous ways in which organisms in these systems interact with each other and respond to perturbations, aquatic systems often behave in complex, non-linear ways. 
+  Interactions between species are often overlooked in natural resource management and as human impacts on our ecosystems continue to grow, so does the need to move from single species management to ecosystem based management. Ecosystem based management takes a holistic approach to managing natural resources that includes the interactions of humans with ecosystems. Ecosystem-based management can be difficult to implement due to the complex nature of social ecological systems where the ecosystem services and states we are interested in are integrated within larger systems ranging across governance boundaries from local to international governance. Although ecosystem-based management implementation may be difficult, it is nevertheless warranted. Aquatic systems, including fisheries, provide excellent examples to explore the difficulties of implementing ecosystem-based management.  Counterintuitive responses by fish populations to management have shown that in many cases a linear, single-species focused view of these systems can lead managers to make decisions that, in hindsight, are ineffective or even detrimental to these systems (Hansen et al. 2015; Sass and Shaw 2020). In some situations, the stable state of a system may shift to an undesirable state as a result of these actions, or an undesirable state may be reinforced despite well intentioned action by managers (Carpenter 2003; Carpenter et al. 2017). Aquatic systems provide a myriad of benefits to society through ecosystem services that are culturally and economically valuable; the loss of these ecosystem services due to the reinforcement of, or shift to, an undesirable stable state would likely have a negative effect on society. For example, human-induced eutrophication can result in shifts in water availability, biodiversity, flood protection, recreational use, etc., in shallow freshwater lake systems (Janssen et al., 2020). Within fisheries, alterations to the stable state can influence ecosystem productivity, as well as economic and cultural influences of recreational angling. For example, shifts in walleye densities can significantly influence the culturally important tribal spearfishery in the Wisconsin Ceded Territory (Mrnak et al., 2018). 
+  
+	Several examples of the causes and effects of ineffective management action on fisheries were reviewed in Pine et al. (2009). Here, Pine et al. (2009) used several case studies to explore why predictions for ecosystem responses to management actions have been wrong in both simple and complex systems. A central theme of these incorrect predictions was a failure to consider interactions between multiple species and life stages. In aquatic communities, species may be in competition, which, when coupled with human influences, can directly affect multiple species simultaneously. For example, human-induced climate change can result in altered ice cover regimes, thereby altering species interactions between Arctic char and brown trout, likely resulting in decreased Arctic char biomass and systems dominated by brown trout (Helland et al., 2011). Ultimately, through direct and indirect effects cascading through the community, human disturbance in these systems is likely to affect all community members in various ways from direct harvesting of these species to changing environmental conditions leading to loss of habitat and food resources (Carpenter et al. 2017; Sass et al. 2017). Human effects on slow moving, abiotic variables like climate will also alter community dynamics. This has been well described in aquatic communities (e.g., eutrophication, lake browning, bass-walleye degree days, SOS). Because of the varied ways in which humans influence these systems, and the numerous ways in which organisms in these systems interact with each other and respond to perturbations, aquatic systems often behave in complex, non-linear ways. 
 	
   These complex interspecific interactions in aquatic systems can result in positive feedback loops that allow a stable state to reinforce itself such that efforts by managers to change the stable state may have no or unintended effects. Walters and Kitchell (2001) described how positive feedback loops can create two stable states in a food web consisting of a top predator and a forage species through cultivation-depensation effects. Under low exploitation, the top predator species is abundant and able to cultivate conditions to increase survival of its juveniles by preying on the predators of its juveniles, namely the forage species. Alternatively, the forage species may dominate when exploitation of the top predator is high (as is the case in many fisheries), allowing the forage species to cultivate conditions for itself through predation on juveniles of the top predator. When top predator abundance declines enough, recruitment of new juveniles to the population may decline through the process of depensation where there are so few spawning adults left that recruitment declines in spite of decreased intra-specific competition. The positive feedback loops that enable cultivation-depensation effects demonstrate one mechanism by which aquatic systems may display non-linear dynamics. If the forage species has established itself as the dominant species, simply increasing the survival of adult predators (even through fishery closure) may have no effect or possibly a negative effect if the associated increase in juvenile production further increases foraging opportunities for the forage species and leads to further increases in their biomass with the increased prey availability. These dynamics allow the point at which the stable state changes to vary depending on which state the system is in. This hysteretic behavior can make rehabilitating ecosystems particularly difficult, costly, and sometimes irreversible.  For example, rehabilitating a collapsed fishery may not be accomplished simply through a reduction in fishing mortality past the point that caused the initial collapse. Instead, drastic reductions in fishing mortality, coupled with stocking, and possibly habitat improvements may all be necessary to push the system out of its current stable state and back to the desired state.
-  
+
 	The non-linearity that can arise when dealing with inter-specific interactions, as demonstrated by cultivation-depensation theory, can lead to counterintuitive outcomes and can pose a problem for managers who are often limited in the options available to them (Carpenter et al. 2017). Carpenter et al. (2017) described this situation where some things, like a changing climate, are outside the direct control of managers. Because of this, managers are only able to influence the system in certain ways based on the limited number of ‘levers’ they have control over. Considering this, Carpenter et al. (2017) laid out a conceptual framework where mangers aim to keep systems in a ‘safe operating space’ (SOS) using what they can control to compensate for forces outside their control, while still achieving positive outcomes. In the case of recreational fisheries, the ‘levers’ available to managers are often based on linear, single species views of system dynamics (i.e. a reduction in harvest of species ‘X’ will result in a proportional increase in their population size). When the levers available to mangers, and the lens through which they view the system, do not consider the complex inter-specific interactions, regime shifts can occur that are likely to have major implications for the ecology of the system and the human users of it (Xu et al. 2014). The widespread adoption of voluntary catch and release practices provide an example of unintended consequences and regime shifts. Catch and release angling is often promoted to help rehabilitate populations experiencing unsustainable harvesting. When taken to the extreme, catch and release angling can allow species densities to increase drastically to the point where density dependent effects on growth (decreased length and body condition) restructure populations, often in opposition to angler and manger desires. These unintended negative consequences of catch and release fishing have been documented in Largemouth bass and Muskellunge (Miranda et al. 2017, Sass and Shaw 2020, Hansent et al. 2015, Rypel et al. 2016). The recognition of the role of inter-specific and trophic interactions among species, and the hysteretic ecosystem-state behavior that may lead to unintended consequences, has helped foster the adoption of more ecosystem-based management strategies (Blackwood, Hastings, and Mumby 2012).
 	
 	To date, much of the research addressing stable states and ecosystem-based management has focused on the management of a single species. In fisheries, it is common to focus applied research on a single focal species, even when this species is embedded in a larger community where harvest of multiple species takes place (Hansen et al. 2015). The tradeoffs between competing management goals for several co-occurring species are often not considered; however, some notable exceptions do exist (Essington et al. 2015, Oken et al. 2016, others?). Essington et al. (2015) used competing objectives for a predator fishery (Atlantic cod, Gadus morhua) and a forage species fishery (Atlantic herring, Clupea harengus) to show how the ecological interactions between the two and the market price of each species combined to determine the appropriate level of mortality for each species given specific management goals (maximizing combined profit of both species at equilibrium). In contrast to commercial fisheries where users aim to maximize profit, recreational fishery users vary along multiple axes of species preference, catch rate, fish size, location, valuation, utility, avidity, and harvest opportunity. Users place differing levels of importance on each of these aspects of the fishing experience. This can lead to divergent, and in some cases, competing, desires by fishery users and ultimately complex management problems. Given the limited ways in which managers can influence recreational fisheries (i.e., fishing regulations, stocking, or habitat alteration), understanding and leveraging ecological interactions allows managers to make the most of the limited tools at their disposal to keep systems within a safe operating space and to meet the diverse goals of users in this system (Carpenter et al. 2017).
@@ -32,26 +50,26 @@ source("q2Func.R")
 # Methods
 ## Model
 
-We used a stage structured, fishery model from @biggs2009 (add the other two citations she uses as well). Their original model contained trophic triangle dynamics between a harvested sport fish with juvenile and adult stages, and a single stage planktivore fish that was not part of the fishery. We modify that to two stage-structured, fish populations that are simultaneously harvested. The model contains basic foraging arena dynamics where juvenile sportfish move between the foraging arena and refuge. In this model adult sportfish can prey upon their own juveniles and juveniles of the competeing sportfish species when they are in the foraging arena. The population dynamics for the two species are identical. Unless noted, all parameters are constant through time. 
+  We modified a stage structured food web model (Carpenter and Brock 2005, Carpenter et al. 2008, Biggs et al. 2009). The original model contained trophic triangle dynamics between a harvested sport fish with juvenile and adult stages, and a single stage planktivore fish that was not part of the fishery. We modify that to two stage-structured, fish populations that are simultaneously harvested. The model contains basic foraging arena dynamics where juvenile sportfish move between the foraging arena and refuge. In this model adult sportfish can prey upon their own juveniles and juveniles of the competing sportfish species when they are in the foraging arena. The population dynamics for the two species are identical. Unless noted, all parameters are constant through time. 
 
 ### Adult Dynamics
 
 $$\frac{dA_1}{dt} = -qE_1 A_1 - m_1 A_1 + s_1J_1$$
 $$\frac{dA_2}{dt} = -qE_2 A_2 - m_2 A_2 + s_2J_2$$
 
-Adults are produced through the maturation of juveniles at rate $s_1$ or $s_2$. Adults undergo both natural moratlity, $m_1$ and $m_2$, and are harvested at rate $qE_1$ and $qE_2$. **Anything more to add here?**
+Adults are produced through the maturation of juveniles at constant rate $s_1$ or $s_2$. Adults undergo both natural mortality, $m_1$ and $m_2$, and are harvested at rate $qE_1$ and $qE_2$. Harvest rate can be either constant or time-dependent in our model.**Anything more to add here?**
 
 ### Juvenile Dynamics
 
 $$\frac{dJ_1}{dt} = - c_{J_1,J_2} J_1 J_2 - \frac{c_{J_1,A_1}v_1 J_1 A_1}{h_1+v_1+c_{J_1,A_1}} - \frac{c_{J_1,A_2}v_1 J_1 A_2}{h_1+v_1+c_{J_1,A_2}}+f_1A_1+S_1$$
 $$\frac{dJ_2}{dt} = - c_{J_2,J_1} J_2 J_1 - \frac{c_{J_2,A_2}v_2 J_2 A_2}{h_2+v_2+c_{J_2,A_2}} - \frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}+f_2A_2+S_2$$
 
-Juveniles are produced through density dependent recruitment based on Ricker stock-recruitment relationships (**currently the parms here are for walleye**). Additionally, stocking of juveniles can be imposed through $S_1$ and $S_2$ respectively. Juveniles are removed from the population through one of three ways. The strength of each mortality source is represented by the parameter $c$ which can be thought of in general terms as the 'effect' of one species/life stage on another. Juvenile mortality occurs through cannibalism $c_{J_1,A_1} J_1 A_1$ (read this as 'the effect of $A_1$ on $J_1$') which is dependent on refuge dynamics in this model which is different from Biggs et al. (2009). Secondly, juveniles undergo mortality through predation by adults of the opposite species $\frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}$. These dynamics are dependent on refuge (as in Biggs et al. 2009) and are controlled by two rates, $h$ the rate at which juveniles leave refuge and enter the 'arena', and $v$ the rate at which they leave the arena and enter refuge. Changes in the amount of refuge available to fish are simulated through changes in the $h$ parameter which determines how many juveniles are in the arena. The last juvenile mortality source is through direct competition with juveniles of the opposite species either through competition for resources or direct predation. This competition occurs independent of refuge dynamics, in other words all juveniles compete in all areas. This is based on the assumption that juveniles of both species occupy the same refuge and same arena. The three processes described above are currently the only way juveniles leave the juvenile life state. Biggs' model assumes all those not claimed by the 3 sources of mortality above then mature to adults. These fish then survive at some proportion $s$ to join the adult population ($+sJ$).
+  Juveniles are produced through density dependent recruitment based on Ricker stock-recruitment relationships. Additionally, stocking of juveniles can be imposed through $S_1$ and $S_2$ respectively. Juveniles are removed from the population through one of three ways. The strength of each mortality source is represented by the parameter $c$ which can be thought of in general terms as the 'effect' of one species/life stage on another. Juvenile mortality occurs through cannibalism $c_{J_1,A_1} J_1 A_1$ (read this as 'the effect of $A_1$ on $J_1$') which is dependent on refuge dynamics. Secondly, juveniles undergo mortality through predation by adults of the opposite species $\frac{c_{J_2,A_1}v_2 J_2 A_1}{h_2+v_2+c_{J_2,A_1}}$. These dynamics are dependent on refuge and are controlled by two rates, $h$ the rate at which juveniles leave refuge and enter the 'arena', and $v$ the rate at which they leave the arena and enter refuge. Changes in the amount of refuge available to fish are simulated through changes in the $h$ parameter which determines how many juveniles are in the arena. The last juvenile mortality source is through direct competition with juveniles of the opposite species either through competition for resources or direct predation. This competition occurs independent of refuge dynamics, in other words all juveniles compete in all areas. This is based on the assumption that juveniles of both species occupy the same refuge and same arena. The three processes described above are currently the only way juveniles leave the juvenile life state. All those not claimed by the 3 sources of mortality above then mature to adults. These fish then survive at some proportion $s$ to join the adult population ($+sJ$).
 
 ```{r,echo=FALSE, cash=TRUE, cash.comments=F}
 #This table populates parameter definitions - not formatted super nice yet. - can throw this in the supplement if we want it there. 
-  p=c(s1='Juvenile survival sp1',m1='adult natural mortality',cJ1A1='cannibalism',cJ1A2='predation by sp2',cJ1J2='Juvenile competition',v1='rate sp1 juveniles enter FA',f1='fecundidty sp1', h1='rate sp1 juveniles leave FA', S1='stocking species 1', qE1='harvest rate sp1',
-      s2='Juvenile survival sp2',m2='adult natural mortality',cJ2A2='cannibalism',cJ2A1='predation by sp1',cJ2J1='Juvenile competition',v2='rate sp2 juveniles enter FA',f2='fecundidty sp1', h2='rate sp2 juveniles leave FA', S2='stocking species 2', qE2='harvest rate sp2')
+  p=c(s1='Juvenile survival sp1',m1='adult natural mortality',cJ1A1='cannibalism',cJ1A2='predation by sp2',cJ1J2='Juvenile competition',v1='rate sp1 juveniles enter FA', h1='rate sp1 juveniles leave FA', S1='stocking species 1', qE1='harvest rate sp1',
+      s2='Juvenile survival sp2',m2='adult natural mortality',cJ2A2='cannibalism',cJ2A1='predation by sp1',cJ2J1='Juvenile competition',v2='rate sp2 juveniles enter FA', h2='rate sp2 juveniles leave FA', S2='stocking species 2', qE2='harvest rate sp2')
 params <- as.data.frame(p)
 colnames(params) <- "Parm definitions"
 knitr::kable(params, caption="",  col.names = NA, row.names = NA)
@@ -59,6 +77,347 @@ knitr::kable(params, caption="",  col.names = NA, row.names = NA)
 
 ## Simulations
 
-Model simulations are performed in R using RStudio and the deSolve package (**citations**). Different model runs will use slightly different parameterizations for harvest, stocking, and habitat availability. Species interaction parameters, mortality, survival, and fecundity are all held constant across simulations. 
+  Model simulations are performed in R using RStudio and the deSolve package (Soetaert et al. 2010,R Core Team 2020, RStudio Team 2020). Different model runs will use slightly different parameterizations for harvest, stocking, and habitat availability (**word this better**). Species interaction parameters, mortality, survival, and fecundity are all held constant across simulations. In our model runs species 1 is considered the desirable species and is sought after for harvest opportunities. Species 2 represents a less desirable species that is rarely harvested (**should this go here or somewhere where in the results?**).
 
 # Results
+
+  We demonstrate alternative stable states in our model by running our model to equilibrium a cross a range of harvest rates for species 1 while holding species 2 harvest rate constant (Fig. 1). Across the range of harvests, the model outcomes can differ depending on the initial system state. For example a harvest rate of 4 on species 1 can result in scenarios where species 1 dominates over species 2 or vice versa.
+```{r, echo=F,cache=T, fig.cap="Model exhibits alternative stable states. The model is run to equilibrium over a range of harvest rates for species 1, species 2 harvest is held constant at 2. Top panel shows equilibrium abundances for the range of harvests when species 1 is initially dominant. Bottom panel shows equilibrium abundances for the range of harvests when species 2 is initially dominant."}
+#other option for figure 1
+
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+tstep=1:300
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(2,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+par(mfcol=c(2,1), mar=c(1,1,3,1), oma=c(4,4,1,1))
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "",xlab = "")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+plot(store2$qEs,store2$A1,lwd=3, type='l', ylim = c(0, max(store2[,2:3],na.rm = T)),ylab = "", xlab = "")
+lines(store2$qEs,store2$A2,lwd=3,col='grey')
+#legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+mtext("Abundance", side = 2, outer = T, line = 2.5)
+mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
+```
+
+  Managing both species simultaneously produces drastically different outcomes for the hypothetical manager in our model. First we explore scenarios where only species 1 is managed under regimes where the desired species (species 1) is already established (Fig.2a) or where species 2 is established and the goal is to flip the system to a species 1 dominated state (Fig. 2b). When species 1 begins as the dominant species, stocking and harvest reductions can be used separately or in combination to maintain this dominance. As harvest increases stocking will be required to maintain the stable state. Higher harvest results in greater stocking need. When trying to flip the stable state from species 2 dominating to species 1 some level of stocking will always be necessary regardless of the harvest pressure. Higher levels of stocking are necessary across all harvest rates in order to flip the system to favor species 1. When management of species 1 and species 2 occurs the options for managers expand from stocking and harvest regulations for species1 to stocking and harvest regulations for both species, doubling the number of options available to achieve desired outcomes. Figure 2 c \& d consider a scenario where the manager regulates harvest on both species and stocks species 1 in order to allow species 1 to dominate over species 2. When species 1 is established as the dominant species and a small amount of fishing mortality is imposed on species 2, the system is able to maintain species 1 dominance under all but the most intense harvest pressure on species 1 with no stocking necessary. A small amount of stocking is able to over come extreme harvest effects here and allow for species 1 to dominate across any harvest rate (Fig. 2c). When species 2 dominates and the goal is to flip to the system in favor of species 1, relatively little stocking is necessary across any species 1 harvest rate to flip the system (Fig. 2d) because of the addition of a small amount of harvest on species 2.    
+  
+```{r, echo=FALSE, cache=T, fig.dim=c(7,7), fig.cap="Effect of managing species 1 only (A & B) or both species simultaneously (C & D). Color represent instances where the equilibrium abundances of species 1 was greater than species 2 (green) or vice versa (red). Panels A and C are for a scenario where species 1 is already dominant and needs to be maintained. Panels B and D represent scenarios where species 2 dominates and the goal is to flip the system in favor of species 1."}
+##### HEATMAPS #####
+
+tstep=1:300
+
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+
+##### MAINTAIN W/O sp2 harv ####
+#matrix to hold output, starting with different harvest levels on each species
+
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
+df=expand.grid(X=qEs,Y=sto)
+df$A1=numeric(nrow(df))
+df$A2=numeric(nrow(df))
+df$J1=numeric(nrow(df))
+df$J2=numeric(nrow(df))
+minDiff=100
+
+for(i in 1:nrow(df)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(1000,100,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  df$A1[i]=sim[nrow(sim)-1,2]
+  df$A2[i]=sim[nrow(sim)-1,3]
+  df$J1[i]=sim[nrow(sim)-1,4]
+  df$J2[i]=sim[nrow(sim)-1,5]
+}
+
+df$diff=df$A1-df$A2
+df$outcome=ifelse(df$A1-df$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = df)+theme_classic()
+a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(df$diff), 1, max(df$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "")+
+  geom_contour(aes(x=df$X, y=df$Y, z=df$diff), breaks = c(minDiff))
+
+#### FLIP W/O sp2 harv ####
+
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
+df2=expand.grid(X=qEs,Y=sto)
+df2$A1=numeric(nrow(df2))
+df2$A2=numeric(nrow(df2))
+df2$J1=numeric(nrow(df2))
+df2$J2=numeric(nrow(df2))
+
+
+for(i in 1:nrow(df)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(df2$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(100,1000,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  df2$A1[i]=sim[nrow(sim)-1,2]
+  df2$A2[i]=sim[nrow(sim)-1,3]
+  df2$J1[i]=sim[nrow(sim)-1,4]
+  df2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+df2$diff=df2$A1-df2$A2
+df2$outcome=ifelse(df2$A1-df2$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = df2)+theme_classic()
+b=vz+geom_tile(aes(x=df2$X, y=df2$Y, fill=df2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(df2$diff), 1, max(df2$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "")+
+  geom_contour(aes(x=df2$X, y=df2$Y, z=df2$diff), breaks = c(minDiff))
+
+##### MAINTAIN W/ sp2 harv ####
+#matrix to hold output, starting with different harvest levels on each species
+
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
+dfwo=expand.grid(X=qEs,Y=sto)
+dfwo$A1=numeric(nrow(dfwo))
+dfwo$A2=numeric(nrow(dfwo))
+dfwo$J1=numeric(nrow(dfwo))
+dfwo$J2=numeric(nrow(dfwo))
+
+for(i in 1:nrow(dfwo)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(1000,100,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfwo$A1[i]=sim[nrow(sim)-1,2]
+  dfwo$A2[i]=sim[nrow(sim)-1,3]
+  dfwo$J1[i]=sim[nrow(sim)-1,4]
+  dfwo$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfwo$diff=dfwo$A1-dfwo$A2
+dfwo$outcome=ifelse(dfwo$A1-dfwo$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfwo)+theme_classic()
+c=vz+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(dfwo$diff), 1, max(dfwo$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "")+
+  geom_contour(aes(x=dfwo$X, y=dfwo$Y, z=dfwo$diff), breaks = c(minDiff))
+
+#### FLIP W/ sp2 harv ####
+
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
+dfwo2=expand.grid(X=qEs,Y=sto)
+dfwo2$A1=numeric(nrow(dfwo2))
+dfwo2$A2=numeric(nrow(dfwo2))
+dfwo2$J1=numeric(nrow(dfwo2))
+dfwo2$J2=numeric(nrow(dfwo2))
+
+for(i in 1:nrow(dfwo2)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(dfwo2$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(100,1000,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfwo2$A1[i]=sim[nrow(sim)-1,2]
+  dfwo2$A2[i]=sim[nrow(sim)-1,3]
+  dfwo2$J1[i]=sim[nrow(sim)-1,4]
+  dfwo2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfwo2$diff=dfwo2$A1-dfwo2$A2
+dfwo2$outcome=ifelse(dfwo2$A1-dfwo2$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfwo2)+theme_classic()
+d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(dfwo2$diff), 1, max(dfwo2$dif)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Harvest Rate", y="Stocked fish", title = "")+
+  geom_contour(aes(x=dfwo2$X, y=dfwo2$Y, z=dfwo2$diff), breaks = c(minDiff))
+
+#comparing with and without hysteresis plots together using cowplot package
+#dev.new()
+ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
+
+```
+
+  Figure 3 considers the relationship between stocking of species 1 and harvest of species 2 when the goal is to flip a system to from species 2 to species 1. Given a constant level of  harvest for species 1, stocking of species 1 and harvest of species 2 are negatively correlated. Similar outcomes can be achieved through high stocking of species 1 with no harvest of species 2, high harvest of species 2 with minimal stocking, or some intermediate combination of the two (Fig. 3).
+
+```{r, echo=F, fig.cap="Here managers can stock species 1 (y axis) or increase harvest on it's predator (species 2, x axis). The negative relationship between stocking species 1 and harvesting species 2 allows managers to achaive similar outcomes through implementation of either strategy or a mixutre of both."}
+
+#plot to look at the cost/benefits of stocking or predator reduction for managing a focal species. 
+
+qEs=seq(0,8,length.out = 30)
+sto=seq(0,2000, length.out = 30)
+dfT=expand.grid(X=qEs,Y=sto)
+dfT$A1=numeric(nrow(dfT))
+dfT$A2=numeric(nrow(dfT))
+dfT$J1=numeric(nrow(dfT))
+dfT$J2=numeric(nrow(dfT))
+
+for(i in 1:nrow(dfT)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(4, length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(dfT$X[i], length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfT$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(100,1000,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfT$A1[i]=sim[nrow(sim)-1,2]
+  dfT$A2[i]=sim[nrow(sim)-1,3]
+  dfT$J1[i]=sim[nrow(sim)-1,4]
+  dfT$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfT$diff=dfT$A1-dfT$A2
+dfT$qNorm=(dfT$X-min(dfT$X))/(max(dfT$X)-min(dfT$X))
+dfT$sNorm=(dfT$Y-min(dfT$Y))/(max(dfT$Y)-min(dfT$Y))
+#dfT$outcome=ifelse(dfT$A1-dfT$A2 < minDiff,"darkgreen", "darkred")
+vz=ggplot(data = dfT)+theme_classic()
+vz+geom_tile(aes(x=dfT$qNorm, y=dfT$sNorm, fill=dfT$diff))+
+  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 \nDominance", breaks=c(min(dfT$diff), 1, max(dfT$diff)), labels=c("sp2", "even", "sp1"))+
+  labs(x="Sp2 harvest Rate", y="Sp1 stocked fish")#+
+  #geom_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))+
+  #geom_label_contour(aes(x=dfT$X, y=dfT$Y, z=dfT$diff))
+```
+
+  We explored a scenario where slow moving changes in habitat availability can drive an eventual flip in system state from species 1 to species 2. Management action can delay an inevitable transition through either stocking species 1 (Fig. 4b) or harvesting species 2 (Fig. 4c). In combination, managing both species may be able to prevent a regime shift altogether (Fig. 4d). Management action here was limited to what might be feasible given time and budget constraints for most managers. (**There's a lot of nuance here as far as what level of stocking and harvest is appropriate and I think it'll be easier to talk about in the discussion but I'm less certain about what should be included in the results**)
+
+```{r, echo=F, fig.align="center", fig.cap="Figure 4. Delaying a transitions. Slow moving variable 'h'represents changing habitat availability which will inevitably flip system from sp1 dominated to sp2 (panel A). The flip in system state can be delayed through either stocking of the desired species (panel B), harvest of it's competitior (panel C), or perhaps prevented altogether by stocking and harvesting (panel D)."}
+
+#figure on delaying a transition
+
+#running to sp1 dominating before habitat decline
+tstep=1:200
+h1Fun=approxfun(x=tstep,y=c(rep(10,200)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,200)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+st1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+y0=c(500,100,0,0)
+simPre=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#habitat decline and stocking
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10, length.out = 100),rep(10,300)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st2Fun=approxfun(x=tstep,y=c(rep(4,500)))#this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+y0=simPre[199,2:5]
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#stocking delays the transition to sp2
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0, length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10, length.out = 100),rep(10,300)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,100),rep(80,400)))
+st2Fun=approxfun(x=tstep,y=c(rep(4,500))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+
+simS=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#harvesting delays the transition to sp2
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0,length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10,length.out = 100),rep(10,300)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,.5,length.out = 200), rep(.5,200)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
+st2Fun=approxfun(x=tstep,y=c(rep(5,500))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+
+simH=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#harvesting and stocking delays the transition to sp2
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,0,length.out = 100), rep(0,300)))
+h2Fun=approxfun(x=tstep,y=c(rep(10,100),seq(10,10,length.out = 100),rep(10,300)))
+qE1Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,4,length.out = 200), rep(4,200)))
+qE2Fun=approxfun(x=tstep,y=c(rep(0,100), seq(0,.5,length.out = 200), rep(.5,200)))
+st1Fun=approxfun(x=tstep,y=c(rep(0,100),rep(80,400)))
+st2Fun=approxfun(x=tstep,y=c(rep(5,500))) #this is to simulate increase in fecundity, could change the model to make f time dependent, or have some amount of harvest that declines to 0
+
+simB=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+
+#plotting
+par(mfcol=c(2,2), mar=c(1,1,1,1), oma=c(4,4,1,1))
+plot(sim[,1],sim[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(sim[,1],sim[,3],col='black',lwd=2)
+text(x=375,y=1200,labels = "No action taken")
+text(x=max(sim[,1],na.rm = T), y=max(sim[,2:3],na.rm = T),labels='A',font = 2)
+legend("topleft", legend = c("sp1","sp2"), col = c('grey','black'),lty = c(1,1),lwd=2,bty = "n")
+plot(simS[,1],simS[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(simS[,1],simS[,3],col='black',lwd=2)
+text(x=375, y=1200, labels = "Stocking sp1")
+text(x=min(simS[,1],na.rm=T), y=max(simS[,2:3],na.rm = T),labels='B',font = 2)
+plot(simH[,1],simH[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(simH[,1],simH[,3],col='black',lwd=2)
+text(x=375, y=1200, labels = "Harvesting sp2")
+text(x=min(simH[,1],na.rm = T), y=max(simH[,2:3],na.rm = T),labels='C',font = 2)
+plot(simB[,1],simB[,2],type='l',ylim=c(0,max(sim[,2:3],na.rm = T)),col='grey',lwd=2,xlab = "",ylab = "")
+lines(simB[,1],simB[,3],col='black',lwd=2)
+text(x=375, y=1200, labels = "Harvesting sp2 \n Stock sp1")
+text(x=min(simB[,1],na.rm = T), y=max(simB[,2:3],na.rm = T),labels="D",font = 2)
+mtext("Year", side = 1, outer = T, line = 2.5)
+mtext("Population Size", side = 2, outer = T, line = 2.5)
+```
+
+
