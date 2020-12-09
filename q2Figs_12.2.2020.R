@@ -64,12 +64,7 @@ for(i in 1:nrow(df)){
 
 df$diff=df$A1-df$A2
 df$outcome=ifelse(df$A1-df$A2 < minDiff,"darkgreen", "darkred")
-vz=ggplot(data = df)+theme_classic()
-# a=vz+geom_tile(aes(x=df$X, y=df$Y, fill=df$diff))+
-#   scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(df$diff), 1, max(df$dif)), labels=c("sp2", "even", "sp1"))+
-#   labs(x="Harvest Rate", y="Stocked fish", title = "")+
-#   geom_contour(aes(x=df$X, y=df$Y, z=df$diff), breaks = c(minDiff))
-a=vz+geom_point(aes(x=df$X,df$A1,color=df$Y)) #stocking boosts curve up across the board
+
 
 #### FLIP W/O sp2 harv ####
 
@@ -100,11 +95,7 @@ for(i in 1:nrow(df)){
 
 df2$diff=df2$A1-df2$A2
 df2$outcome=ifelse(df2$A1-df2$A2 < minDiff,"darkgreen", "darkred")
-vz=ggplot(data = df2)+theme_classic()
-b=vz+geom_tile(aes(x=df2$X, y=df2$Y, fill=df2$diff))+
-  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(df2$diff), 1, max(df2$dif)), labels=c("sp2", "even", "sp1"))+
-  labs(x="Harvest Rate", y="Stocked fish", title = "")+
-  geom_contour(aes(x=df2$X, y=df2$Y, z=df2$diff), breaks = c(minDiff))
+
 
 ##### MAINTAIN W/ sp2 harv ####
 #matrix to hold output, starting with different harvest levels on each species
@@ -135,11 +126,7 @@ for(i in 1:nrow(dfwo)){
 
 dfwo$diff=dfwo$A1-dfwo$A2
 dfwo$outcome=ifelse(dfwo$A1-dfwo$A2 < minDiff,"darkgreen", "darkred")
-vz=ggplot(data = dfwo)+theme_classic()
-c=vz+geom_tile(aes(x=dfwo$X, y=dfwo$Y, fill=dfwo$diff))+
-  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(dfwo$diff), 1, max(dfwo$dif)), labels=c("sp2", "even", "sp1"))+
-  labs(x="Harvest Rate", y="Stocked fish", title = "")+
-  geom_contour(aes(x=dfwo$X, y=dfwo$Y, z=dfwo$diff), breaks = c(minDiff))
+
 
 #### FLIP W/ sp2 harv ####
 
@@ -169,25 +156,147 @@ for(i in 1:nrow(dfwo2)){
 
 dfwo2$diff=dfwo2$A1-dfwo2$A2
 dfwo2$outcome=ifelse(dfwo2$A1-dfwo2$A2 < minDiff,"darkgreen", "darkred")
-vz=ggplot(data = dfwo2)+theme_classic()
-d=vz+geom_tile(aes(x=dfwo2$X, y=dfwo2$Y, fill=dfwo2$diff))+
-  scale_fill_gradient2(low="darkred", high="darkgreen", mid="white", midpoint=1, name="Sp1 Dominance", breaks=c(min(dfwo2$diff), 1, max(dfwo2$dif)), labels=c("sp2", "even", "sp1"))+
-  labs(x="Harvest Rate", y="Stocked fish", title = "")+
-  geom_contour(aes(x=dfwo2$X, y=dfwo2$Y, z=dfwo2$diff), breaks = c(minDiff))
+
 
 #trying some new plots
 
 #plot isoclines for all scenarios on one plot with x=harvest, y= stocking, line where 1>2
 df$mod=rep("Maintain 1, ignore 2",nrow(df))
-df2$mod=rep("Flip to 1, ignore 2",nrow(df2))
+#df2$mod=rep("Flip to 1, ignore 2",nrow(df2))
 dfwo$mod=rep("Maintain 1, harv 2",nrow(dfwo))
-dfwo2$mod=rep("Flip to 1, harv 2",nrow(dfwo2))
-allSen=rbind(df,df2,dfwo,dfwo2)
-vzI=ggplot(data=allSen, aes(x=allSen$X,y=allSen$Y,color=allSen$mod))+theme_classic()+
-  geom_contour(aes(z=allSen$diff),breaks = c(minDiff))+
-  labs(x="Species 1 Harvest Rate", y="Species 1 Stocking",color="Scenario")+
-  theme(legend.position = 'bottom')+guides(color=guide_legend(nrow=2,byrow = T))
+#dfwo2$mod=rep("Flip to 1, harv 2",nrow(dfwo2))
+allSen=rbind(df,dfwo)
+vzI=ggplot(data=allSen, aes(x=allSen$X,y=allSen$Y,linetype=allSen$mod))+theme_classic()+
+  geom_contour(aes(z=allSen$diff),breaks = c(minDiff), color='black', size=2)+
+  labs(x="Species 1 Harvest Rate", y="Species 1 Stocking",linetype="Scenario")+
+  theme(legend.position = 'bottom')
 vzI
 #comparing with and without hysteresis plots together 
 #dev.new()
 ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
+
+
+#new figure 3, isoclines at different harvests
+
+#plot to look at the cost/benefits of stocking or predator reduction for managing a focal species. 
+
+minDiff=100
+qEs=rep(seq(0,8,length.out = 30),3)
+sto=rep(seq(0,2000, length.out = 30),3)
+dfT=expand.grid(X=qEs,Y=sto)
+dfT$A1=numeric(nrow(dfT))
+dfT$A2=numeric(nrow(dfT))
+dfT$J1=numeric(nrow(dfT))
+dfT$J2=numeric(nrow(dfT))
+dfT$sp1H=c(rep(2,30),rep(4,30),rep(6,30))
+
+for(i in 1:nrow(dfT)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(dfT$sp1H[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(dfT$X[i], length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfT$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(1000,100,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfT$A1[i]=sim[nrow(sim)-1,2]
+  dfT$A2[i]=sim[nrow(sim)-1,3]
+  dfT$J1[i]=sim[nrow(sim)-1,4]
+  dfT$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfT$diff=dfT$A1-dfT$A2
+dfT$qNorm=(dfT$X-min(dfT$X))/(max(dfT$X)-min(dfT$X))
+dfT$sNorm=(dfT$Y-min(dfT$Y))/(max(dfT$Y)-min(dfT$Y))
+dfT$sp1Norm=((dfT$sp1H-min(dfT$X))/(max(dfT$X)-min(dfT$X))) #putting sp1 harv on same scale as sp2
+
+vzT=ggplot(data=dfT, aes(x=dfT$qNorm,y=dfT$sNorm,linetype=as.factor(dfT$sp1Norm)))+theme_classic()+
+  geom_contour(aes(z=dfT$diff),breaks = c(minDiff), color='black', size=1)+
+  labs(x="Species 2 Harvest Rate", y="Species 1 Stocking",linetype="Species 1 Harvest")+
+  theme(legend.position = 'bottom')+
+  xlim(0,1)+
+  ylim(0,1)
+vzT
+
+#flipping sp1 and sp2 harvest in the plot requires rerunning loop
+minDiff=100
+qEs=rep(seq(0,8,length.out = 30),3)
+sto=rep(seq(0,2000, length.out = 30),3)
+dfT2=expand.grid(X=qEs,Y=sto)
+dfT2$A1=numeric(nrow(dfT2))
+dfT2$A2=numeric(nrow(dfT2))
+dfT2$J1=numeric(nrow(dfT2))
+dfT2$J2=numeric(nrow(dfT2))
+dfT2$sp2H=c(rep(2,30),rep(4,30),rep(6,30))
+
+for(i in 1:nrow(dfT2)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(dfT2$X[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(dfT2$sp2H[i], length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfT2$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(1000,100,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfT2$A1[i]=sim[nrow(sim)-1,2]
+  dfT2$A2[i]=sim[nrow(sim)-1,3]
+  dfT2$J1[i]=sim[nrow(sim)-1,4]
+  dfT2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfT2$diff=dfT2$A1-dfT2$A2
+dfT2$qNorm=(dfT2$X-min(dfT2$X))/(max(dfT2$X)-min(dfT2$X))
+dfT2$sNorm=(dfT2$Y-min(dfT2$Y))/(max(dfT2$Y)-min(dfT2$Y))
+dfT2$sp2Norm=((dfT2$sp2H-min(dfT2$X))/(max(dfT2$X)-min(dfT2$X))) #putting sp1 harv on same scale as sp2
+
+vzT2=ggplot(data=dfT2, aes(x=dfT2$qNorm,y=dfT2$sNorm,linetype=as.factor(dfT2$sp2Norm)))+theme_classic()+
+  geom_contour(aes(z=dfT2$diff),breaks = c(minDiff), color='black', size=1)+
+  labs(x="Species 1 Harvest Rate", y="Species 1 Stocking",linetype="Species 2 Harvest")+
+  theme(legend.position = 'bottom')+
+  xlim(0,1)+
+  ylim(0,1)
+vzT2
+
+
+# similar plot where we try to maintain sp2 instead of sp1
+
+minDiff=100
+qEs=rep(seq(0,8,length.out = 30),3)
+sto=rep(seq(0,2000, length.out = 30),3)
+dfT3=expand.grid(X=qEs,Y=sto)
+dfT3$A1=numeric(nrow(dfT3))
+dfT3$A2=numeric(nrow(dfT3))
+dfT3$J1=numeric(nrow(dfT3))
+dfT3$J2=numeric(nrow(dfT3))
+dfT3$sp1H=c(rep(2,30),rep(4,30),rep(6,30))
+
+for(i in 1:nrow(dfT3)){
+  tstep=1:100
+  qE1Fun=approxfun(x=tstep,y=rep(dfT3$sp1H[i], length(tstep)))
+  qE2Fun=approxfun(x=tstep,y=rep(dfT3$X[i], length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(dfT3$Y[i],length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  y0=c(100,1000,0,0)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  dfT3$A1[i]=sim[nrow(sim)-1,2]
+  dfT3$A2[i]=sim[nrow(sim)-1,3]
+  dfT3$J1[i]=sim[nrow(sim)-1,4]
+  dfT3$J2[i]=sim[nrow(sim)-1,5]
+}
+
+dfT3$diff=dfT3$A2-dfT3$A1
+dfT3$qNorm=(dfT3$X-min(dfT3$X))/(max(dfT3$X)-min(dfT3$X))
+dfT3$sNorm=(dfT3$Y-min(dfT3$Y))/(max(dfT3$Y)-min(dfT3$Y))
+dfT3$sp1Norm=((dfT3$sp1H-min(dfT3$X))/(max(dfT3$X)-min(dfT3$X))) #putting sp1 harv on same scale as sp2
+
+vzT3=ggplot(data=dfT3, aes(x=dfT3$qNorm,y=dfT3$sNorm,linetype=as.factor(dfT3$sp1Norm)))+theme_classic()+
+  geom_contour(aes(z=dfT3$diff),breaks = c(minDiff), color='black', size=1)+
+  labs(x="Species 2 Harvest Rate", y="Species 1 Stocking",linetype="Species 1 Harvest")+
+  theme(legend.position = 'bottom')+
+  xlim(0,1)+
+  ylim(0,1)
+vzT3
