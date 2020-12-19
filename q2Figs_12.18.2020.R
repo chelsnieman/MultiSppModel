@@ -27,6 +27,91 @@ simBiggsQ2<-function(t,y,params){
   })
 }
 
+#single model run, describe these dynamics in the beginning of the results.This fig may go in supplemental
+# slow increase in harvest of species 1 brings its abund down, system flips to sp2 over time. This is in a system where all else is the same. Stochasticity and other compeititive imbalances speed this flip up.
+tstep=1:300
+qE1Fun=approxfun(x=tstep,y=c(seq(0,25,length.out=length(tstep))))
+qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+y0=c(100,10,0,0)
+
+p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+plot(sim[,1],sim[,2],type = 'l',lwd=2,ylim = c(0,max(sim[,2:3],na.rm = T)))
+lines(sim[,1],sim[,3],col='gray',lwd=2)
+
+
+#same thing to demonstrate the effect of refuge loss, describe in methods, fig may go in supplement
+# no harvest so the system doesn't flip but the decline in habitat brings down sp1. Since juves share same habitat, the decline effects them both. If you add even a little harves to sp1 here it flips immediately.
+tstep=1:300
+qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+h1Fun=approxfun(x=tstep,y=c(seq(8,0,length.out=100),rep(0,200)))
+h2Fun=h1Fun
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+y0=c(100,10,0,0)
+
+p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+plot(sim[,1],sim[,2],type = 'l',lwd=2,ylim = c(0,max(sim[,2:3],na.rm = T)))
+lines(sim[,1],sim[,3],col='gray',lwd=2)
+
+
+#demonstrate alternative stable states
+store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(100,10,0,0)
+tstep=1:300
+for(i in 1:nrow(store)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(2,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store$A1[i]=sim[nrow(sim)-1,2]
+  store$A2[i]=sim[nrow(sim)-1,3]
+  store$J1[i]=sim[nrow(sim)-1,4]
+  store$J2[i]=sim[nrow(sim)-1,5]
+}
+store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+y0=c(10,100,0,0)
+for(i in 1:nrow(store2)){
+  qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
+  qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
+  h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+  st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
+  
+  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
+  store2$A1[i]=sim[nrow(sim)-1,2]
+  store2$A2[i]=sim[nrow(sim)-1,3]
+  store2$J1[i]=sim[nrow(sim)-1,4]
+  store2$J2[i]=sim[nrow(sim)-1,5]
+}
+
+par(mfcol=c(2,1), mar=c(1,1,3,1), oma=c(4,4,1,1))
+plot(store$qEs,store$A1,lwd=3,type='l',ylim=c(0,max(store[,2:3],na.rm = T)),ylab = "",xlab = "")
+lines(store$qEs,store$A2,lwd=3,col='grey')
+legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+plot(store2$qEs,store2$A1,lwd=3, type='l', ylim = c(0, max(store2[,2:3],na.rm = T)),ylab = "", xlab = "")
+lines(store2$qEs,store2$A2,lwd=3,col='grey')
+#legend("topright",legend = c("sp 1", "sp 2"), lty=1, lwd=2, col = c("black","grey"),bty="n")
+mtext("Abundance", side = 2, outer = T, line = 2.5)
+mtext("Species 1 Harvest Rate (q*E)", side = 1, outer = T, line = 2.5)
+
 ##### HEATMAPS #####
 
 tstep=1:300
@@ -173,7 +258,7 @@ vzI=ggplot(data=allSen, aes(x=allSen$X,y=allSen$Y,linetype=allSen$mod))+theme_cl
 vzI
 #comparing with and without hysteresis plots together 
 #dev.new()
-ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
+#ggarrange(a,b,c,d,labels = c("A","B","C","D"), nrow = 2,ncol = 2, common.legend = T, legend = 'bottom')
 
 
 #new figure 3, isoclines at different harvests
