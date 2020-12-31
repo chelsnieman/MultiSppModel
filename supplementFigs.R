@@ -1,6 +1,33 @@
 ## CD 12.22.2020
 ## Supplementary information figures
+rm(list=ls())
+library(deSolve)
+library(ggplot2)
+library(ggpubr)
 
+#model function
+# qE - harvest, species specific, this is what is controlled by 'regulations'
+# s - juvenile overwinter survival, species specific
+# m - adult natural mortality rate, species specific
+# cJA - effect of adults of a given species on juveniles of a given species (cover cannibalism or interspecific predation, both happen in foraging arena)
+# cJJ - effect of juveniles of one species on juveniles of the other (can be predation or competition)
+# h - rate at which juveniles leave foraging arena for refuge, species specific
+# v - rate at which juveniles enter foraging arena from refuge, species specific
+# stock1 - annual stocked num spp1
+# stock2 - annual stocked num spp2
+simBiggsQ2<-function(t,y,params){
+  A1<-y[1]
+  A2<-y[2]
+  J1<-y[3]
+  J2<-y[4]
+  with(as.list(params),{
+    dA1dt=-qE1Fun(t)*A1-m1*A1+s1*J1
+    dA2dt=-qE2Fun(t)*A2-m2*A2+s2*J2
+    dJ1dt=-cJ1J2*J2*J1-((cJ1A2*v1*A2*J1)/(h1Fun(t)+v1+cJ1A2*A2))-((cJ1A1*v1*A1*J1)/(h1Fun(t)+v1+cJ1A1*A1))-s1*J1+(5000*A1/(500+A1))+st1Fun(t)
+    dJ2dt=-cJ2J1*J1*J2-((cJ2A1*v2*A1*J2)/(h2Fun(t)+v2+cJ2A1*A1))-((cJ2A2*v2*A2*J2)/(h2Fun(t)+v2+cJ2A2*A2))-s2*J2+(5000*A2/(500+A2))+st2Fun(t)
+    return(list(c(dA1dt,dA2dt,dJ1dt,dJ2dt)))
+  })
+}
 
 #single model run, describe these dynamics in the beginning of the results.This fig may go in supplemental
 # slow increase in harvest of species 1 brings its abund down, system flips to sp2 over time. This is in a system where all else is the same. Stochasticity and other compeititive imbalances speed this flip up.
@@ -28,12 +55,12 @@ figS1
 
 
 #same thing to demonstrate the effect of refuge loss, describe in methods, fig may go in supplement
-# no harvest so the system doesn't flip but the decline in habitat brings down sp1. Since juves share same habitat, the decline effects them both. If you add even a little harves to sp1 here it flips immediately.
+# no harvest so the system doesn't flip but the decline in habitat brings down sp1. Since juves share same habitat, the decline effects them both. If you add even a little harvest to sp1 here it flips immediately.
 tstep=1:300
 qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
 qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-h1Fun=approxfun(x=tstep,y=c(seq(8,0,length.out=100),rep(0,200)))
-h2Fun=h1Fun
+h1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
+h2Fun=approxfun(x=tstep,y=c(rep(20,length(tstep))))
 st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
 st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
 y0=c(100,10,0,0)
@@ -71,7 +98,7 @@ df2$J1=numeric(nrow(df2))
 df2$J2=numeric(nrow(df2))
 
 
-for(i in 1:nrow(df)){
+for(i in 1:nrow(df2)){
   tstep=1:100
   qE1Fun=approxfun(x=tstep,y=rep(df2$X[i], length(tstep)))
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
