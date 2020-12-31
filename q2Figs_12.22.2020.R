@@ -91,18 +91,20 @@ a=ggplot(data = panA,aes(x=qEs,y=Abund,color=sp))+theme_classic()+
   geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
-        axis.title.y = element_blank())
+        axis.title.y = element_blank(),
+        axis.text = element_text(size = 10))
 a
 b=ggplot(data = panB,aes(x=qEs,y=Abund,color=sp))+theme_classic()+
   geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
   theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank())
+        axis.title.y = element_blank(),
+        axis.text = element_text(size = 10))
 b
 fig1=ggarrange(a,b,ncol=1,labels = c("A","B"), common.legend = T,legend="top",label.x = 0.9)
 annotate_figure(fig1,
-                left = text_grob("Adult Abundance", rot = 90),
-                bottom = text_grob("Harvest Rate (qE)"))
-
+                left = text_grob("Adult Abundance", rot = 90, size=14),
+                bottom = text_grob("Harvest Rate (qE)", size=14))
+#figure 1
 ##### HEATMAPS #####
 
 tstep=1:300
@@ -172,14 +174,14 @@ for(i in 1:nrow(dfwo)){
 
 dfwo$diff=dfwo$A1-dfwo$A2
 dfwo$outcome=ifelse(dfwo$A1-dfwo$A2 < minDiff,"darkgreen", "darkred")
-df$mod=rep("Maintain 1, ignore 2",nrow(df))
-dfwo$mod=rep("Maintain 1, harv 2",nrow(dfwo))
+df$mod=rep("Maintain sp 1, ignore sp 2",nrow(df))
+dfwo$mod=rep("Maintain sp 1, harv sp 2",nrow(dfwo))
 allSen=rbind(df,dfwo)
 
 vzI=ggplot(data=allSen, aes(x=allSen$X,y=allSen$Y,linetype=allSen$mod))+theme_classic()+
-  geom_contour(aes(z=allSen$diff),breaks = c(minDiff), color='black', size=2)+
+  geom_contour(aes(z=allSen$diff),breaks = c(minDiff), color='black', size=1.7)+
   labs(x="Species 1 Harvest Rate", y="Species 1 Stocking",linetype="Scenario")+
-  theme(legend.position = 'bottom')
+  theme(legend.position = 'right') + theme(axis.text = element_text(size = 10))
 vzI
 
 

@@ -29,6 +29,7 @@ simBiggsQ2<-function(t,y,params){
   })
 }
 
+<<<<<<< HEAD
 #### JUVENILE SURVIVAL LOOP ####
 #looking to see how variation in the survival rate for species 1 changes whether or not stable states occur
 times=1:300
@@ -233,3 +234,38 @@ fig1=ggarrange(a,b,ncol=1,labels = c("A","B"), common.legend = T,legend="top",la
 annotate_figure(fig1,
                 left = text_grob("Adult Abundance", rot = 90),
                 bottom = text_grob("Harvest Rate (qE)"))
+=======
+#### SURVIVAL LOOP ####
+times=1:300
+
+ss=seq(0.05,.9,length.out = 10)
+store=data.frame(qEs=rep(seq(.05,8,length.out=30),10),A1=0,A2=0,J1=0,J2=0,ss=rep(0,300))
+for(f in 1:length(ss)){
+  
+  y0=c(10,100,0,0)
+  for(i in 1:nrow(store)){
+    p=c(c(qE1=store$qEs[i],s1=ss$ss[f],cJ1A1=0.002,cJ1A2=0.002,cJ1J2=0.001,v1=1,h1=1,f1=1),
+        c(qE2=1.8,s2=0.5,cJ2A2=0.002,cJ2A1=0.002,cJ2J1=0.001,v2=1,h2=20,f2=1))
+    sim=ode(y=y0,times=times,func=simBiggs3,parms=p)
+    store$A1[i]=sim[nrow(sim),2]
+    store$A2[i]=sim[nrow(sim),3]
+    store$J1[i]=sim[nrow(sim),4]
+    store$J2[i]=sim[nrow(sim),5]
+  }
+  store2=data.frame(qEs=seq(.05,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
+  y0=c(100,10,40,40)
+  for(i in 1:nrow(store)){
+    p=c(c(qE1=store2$qEs[i],s1=ss$ss[f],cJ1A1=0.002,cJ1A2=0.002,cJ1J2=0.001,v1=1,h1=6,f1=1),
+        c(qE2=1.8,s2=0.5,cJ2A2=0.002,cJ2A1=0.002,cJ2J1=0.001,v2=1,h2=6,f2=1))
+    sim=ode(y=y0,times=times,func=simBiggs3,parms=p)
+    store2$A1[i]=sim[nrow(sim),2]
+    store2$A2[i]=sim[nrow(sim),3]
+    store2$J1[i]=sim[nrow(sim),4]
+    store2$J2[i]=sim[nrow(sim),5]
+  }
+  if(any(abs(store$A2-store2$A2)>1) & any(abs(store$A1-store2$A1)>1)){ss$hyst[f]=1}
+  
+}
+plot(ss$ss,ss$hyst,pch=16,xlab = "Survival",ylab = "Hysteresis Present?")
+plot(ss$ss-0.5,ss$hyst,pch=16,xlab = "Diff Survival",ylab = "Hysteresis Present?")
+>>>>>>> a50aff184bf5c1a61a69f5946a387693c34237a3
