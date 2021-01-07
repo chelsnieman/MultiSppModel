@@ -32,16 +32,16 @@ simBiggsQ2<-function(t,y,params){
 #single model run, describe these dynamics in the beginning of the results.This fig may go in supplemental
 # slow increase in harvest of species 1 brings its abund down, system flips to sp2 over time. This is in a system where all else is the same. Stochasticity and other compeititive imbalances speed this flip up.
 tstep=1:300
-qE1Fun=approxfun(x=tstep,y=c(seq(0,25,length.out=length(tstep))))
-qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-y0=c(100,10,0,0)
+qE1Fun=approxfun(x=tstep,y=c(seq(0,2,length.out=length(tstep))),rule = 2)
+qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule = 2)
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)),rule = 2)
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)),rule = 2)
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule = 2)
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule = 2)
+y0=c(5000,500,0,0)
 
-p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-    s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+p=c(s1=0.1,m1=0.1,cJ1A1=0.001,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.1,cJ2A2=0.001,cJ2A1=0.03,cJ2J1=0.003,v2=1)
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 sf1=as.data.frame(rbind(cbind(sim[,c(1,2)],rep("A1",nrow(sim))),cbind(sim[,c(1,3)],rep("A2",nrow(sim)))))
 colnames(sf1)=c("Time","Abund","sp")
@@ -57,16 +57,16 @@ figS1
 #same thing to demonstrate the effect of refuge loss, describe in methods, fig may go in supplement
 # no harvest so the system doesn't flip but the decline in habitat brings down sp1. Since juves share same habitat, the decline effects them both. If you add even a little harvest to sp1 here it flips immediately.
 tstep=1:300
-qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
-qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-h1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
-h2Fun=approxfun(x=tstep,y=c(rep(20,length(tstep))))
-st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-y0=c(100,10,0,0)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))),rule=2)
+qE2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule=2)
+h1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))),rule=2)
+h2Fun=approxfun(x=tstep,y=c(rep(20,length(tstep))),rule=2)
+st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule=2)
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule=2)
+y0=c(5000,500,0,0)
 
-p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-    s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+p=c(s1=0.1,m1=0.1,cJ1A1=0.001,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.1,cJ2A2=0.001,cJ2A1=0.03,cJ2J1=0.003,v2=1)
 sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
 sf2=as.data.frame(rbind(cbind(sim[,c(1,2)],rep("A1",nrow(sim))),cbind(sim[,c(1,3)],rep("A2",nrow(sim)))))
 colnames(sf2)=c("Time","Abund","sp")
@@ -90,7 +90,7 @@ minDiff=100
 #### FLIP W/O sp2 harv ####
 
 qEs=seq(0,8,length.out = 30)
-sto=seq(0,2000, length.out = 30)
+sto=seq(0,20000, length.out = 30)
 df2=expand.grid(X=qEs,Y=sto)
 df2$A1=numeric(nrow(df2))
 df2$A2=numeric(nrow(df2))
@@ -104,9 +104,9 @@ for(i in 1:nrow(df2)){
   qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(df2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-  y0=c(100,1000,0,0)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+  y0=c(500,5000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df2$A1[i]=sim[nrow(sim)-1,2]
   df2$A2[i]=sim[nrow(sim)-1,3]
@@ -121,7 +121,7 @@ df2$outcome=ifelse(df2$A1-df2$A2 < minDiff,"darkgreen", "darkred")
 #### FLIP W/ sp2 harv ####
 
 qEs=seq(0,8,length.out = 30)
-sto=seq(0,2000, length.out = 30)
+sto=seq(0,20000, length.out = 30)
 dfwo2=expand.grid(X=qEs,Y=sto)
 dfwo2$A1=numeric(nrow(dfwo2))
 dfwo2$A2=numeric(nrow(dfwo2))
@@ -134,9 +134,9 @@ for(i in 1:nrow(dfwo2)){
   qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfwo2$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-  y0=c(100,1000,0,0)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+  y0=c(500,5000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo2$A1[i]=sim[nrow(sim)-1,2]
   dfwo2$A2[i]=sim[nrow(sim)-1,3]
@@ -159,7 +159,7 @@ vzI
 
 minDiff=100
 qEs=rep(seq(0,8,length.out = 30),3)
-sto=rep(seq(0,2000, length.out = 30),3)
+sto=rep(seq(0,20000, length.out = 30),3)
 dfT=expand.grid(X=qEs,Y=sto)
 dfT$A1=numeric(nrow(dfT))
 dfT$A2=numeric(nrow(dfT))
@@ -173,9 +173,9 @@ for(i in 1:nrow(dfT)){
   qE2Fun=approxfun(x=tstep,y=rep(dfT$X[i], length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfT$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-  y0=c(100,1000,0,0)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+  y0=c(500,5000,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfT$A1[i]=sim[nrow(sim)-1,2]
   dfT$A2[i]=sim[nrow(sim)-1,3]
@@ -191,7 +191,7 @@ dfT$sp1Norm=((dfT$sp1H-min(dfT$X))/(max(dfT$X)-min(dfT$X))) #putting sp1 harv on
 vzT=ggplot(data=dfT, aes(x=dfT$X,y=dfT$Y,linetype=as.factor(dfT$sp1H)))+theme_classic()+
   geom_contour(aes(z=dfT$diff),breaks = c(minDiff), color='black', size=1)+
   labs(x="Species 2 Harvest Rate", y="Species 1 Stocking",linetype="Species 1 Harvest")+
-  theme(legend.position = 'bottom')+
-  xlim(0,8)+
-  ylim(0,2000)
+  theme(legend.position = 'bottom')#+
+  # xlim(0,8)+
+  # ylim(0,2000)
 vzT

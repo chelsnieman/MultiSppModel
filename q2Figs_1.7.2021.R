@@ -32,7 +32,7 @@ simBiggsQ2<-function(t,y,params){
 
 #demonstrate alternative stable states
 store=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
-y0=c(100,10,0,0)
+y0=c(5000,500,0,0)
 tstep=1:300
 for(i in 1:nrow(store)){
   qE1Fun=approxfun(x=tstep,y=c(rep(store$qEs[i],length(tstep))))
@@ -42,8 +42,8 @@ for(i in 1:nrow(store)){
   st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
   
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   store$A1[i]=sim[nrow(sim)-1,2]
   store$A2[i]=sim[nrow(sim)-1,3]
@@ -51,7 +51,7 @@ for(i in 1:nrow(store)){
   store$J2[i]=sim[nrow(sim)-1,5]
 }
 store2=data.frame(qEs=seq(0,8,length.out=30),A1=0,A2=0,J1=0,J2=0)
-y0=c(10,100,0,0)
+y0=c(500,5000,0,0)
 for(i in 1:nrow(store2)){
   qE1Fun=approxfun(x=tstep,y=c(rep(store2$qEs[i],length(tstep))))
   qE2Fun=approxfun(x=tstep,y=rep(1.8,length(tstep)))
@@ -60,8 +60,8 @@ for(i in 1:nrow(store2)){
   st1Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
   
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   store2$A1[i]=sim[nrow(sim)-1,2]
   store2$A2[i]=sim[nrow(sim)-1,3]
@@ -94,19 +94,19 @@ fig1=ggarrange(a,b,ncol=1,labels = c("A","B"), common.legend = T,legend="top",la
 annotate_figure(fig1,
                 left = text_grob("Adult Abundance", rot = 90, size=14),
                 bottom = text_grob("Harvest Rate (qE)", size=14))
-#figure 1
+
 ##### HEATMAPS #####
 
 tstep=1:300
 
-h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
-h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)))
+h1Fun=approxfun(x=tstep,y=rep(8,length(tstep)),rule = 2)
+h2Fun=approxfun(x=tstep,y=rep(8,length(tstep)),rule = 2)
 
 ##### MAINTAIN W/O sp2 harv ####
 #matrix to hold output, starting with different harvest levels on each species
 
 qEs=seq(0,8,length.out = 30)
-sto=seq(0,2000, length.out = 30)
+sto=seq(0,20000, length.out = 30)
 df=expand.grid(X=qEs,Y=sto)
 df$A1=numeric(nrow(df))
 df$A2=numeric(nrow(df))
@@ -116,13 +116,13 @@ minDiff=100
 
 for(i in 1:nrow(df)){
   tstep=1:100
-  qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)))
-  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)))
-  st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)))
-  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-  y0=c(1000,100,0,0)
+  qE1Fun=approxfun(x=tstep,y=rep(df$X[i], length(tstep)),rule = 2)
+  qE2Fun=approxfun(x=tstep,y=rep(0, length(tstep)),rule = 2)
+  st1Fun=approxfun(x=tstep,y=rep(df$Y[i],length(tstep)),rule = 2)
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule = 2)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+  y0=c(5000,500,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   df$A1[i]=sim[nrow(sim)-1,2]
   df$A2[i]=sim[nrow(sim)-1,3]
@@ -139,7 +139,7 @@ df$outcome=ifelse(df$A1-df$A2 < minDiff,"darkgreen", "darkred")
 #matrix to hold output, starting with different harvest levels on each species
 
 qEs=seq(0,8,length.out = 30)
-sto=seq(0,2000, length.out = 30)
+sto=seq(0,20000, length.out = 30)
 dfwo=expand.grid(X=qEs,Y=sto)
 dfwo$A1=numeric(nrow(dfwo))
 dfwo$A2=numeric(nrow(dfwo))
@@ -148,13 +148,13 @@ dfwo$J2=numeric(nrow(dfwo))
 
 for(i in 1:nrow(dfwo)){
   tstep=1:100
-  qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)))
-  qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)))
-  st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)))
-  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-  y0=c(1000,100,0,0)
+  qE1Fun=approxfun(x=tstep,y=rep(dfwo$X[i], length(tstep)),rule = 2)
+  qE2Fun=approxfun(x=tstep,y=rep(2, length(tstep)),rule = 2)
+  st1Fun=approxfun(x=tstep,y=rep(dfwo$Y[i],length(tstep)),rule = 2)
+  st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule = 2)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+  y0=c(5000,500,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfwo$A1[i]=sim[nrow(sim)-1,2]
   dfwo$A2[i]=sim[nrow(sim)-1,3]
@@ -171,7 +171,7 @@ allSen=rbind(df,dfwo)
 vzI=ggplot(data=allSen, aes(x=allSen$X,y=allSen$Y,linetype=allSen$mod))+theme_classic()+
   geom_contour(aes(z=allSen$diff),breaks = c(minDiff), color='black', size=1.7)+
   labs(x="Species 1 Harvest Rate", y="Species 1 Stocking",linetype="Scenario")+
-  theme(legend.position = 'right') + theme(axis.text = element_text(size = 10))
+  theme(legend.position = 'right') + theme(legend.position = 'none')
 vzI
 
 
@@ -182,7 +182,7 @@ vzI
 
 minDiff=100
 qEs=rep(seq(0,8,length.out = 30),3)
-sto=rep(seq(0,2000, length.out = 30),3)
+sto=rep(seq(0,20000, length.out = 30),3)
 dfT=expand.grid(X=qEs,Y=sto)
 dfT$A1=numeric(nrow(dfT))
 dfT$A2=numeric(nrow(dfT))
@@ -196,9 +196,9 @@ for(i in 1:nrow(dfT)){
   qE2Fun=approxfun(x=tstep,y=rep(dfT$X[i], length(tstep)))
   st1Fun=approxfun(x=tstep,y=rep(dfT$Y[i],length(tstep)))
   st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-  p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-      s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-  y0=c(1000,100,0,0)
+  p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+      s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+  y0=c(5000,500,0,0)
   sim=ode(y=y0,times=tstep,func=simBiggsQ2,parms=p)
   dfT$A1[i]=sim[nrow(sim)-1,2]
   dfT$A2[i]=sim[nrow(sim)-1,3]
@@ -214,7 +214,7 @@ dfT$sp1Norm=((dfT$sp1H-min(dfT$X))/(max(dfT$X)-min(dfT$X))) #putting sp1 harv on
 vzT=ggplot(data=dfT, aes(x=dfT$X,y=dfT$Y,linetype=as.factor(dfT$sp1H)))+theme_classic()+
   geom_contour(aes(z=dfT$diff),breaks = c(minDiff), color='black', size=1)+
   labs(x="Species 2 Harvest Rate", y="Species 1 Stocking",linetype="Species 1 Harvest")+
-  theme(legend.position = 'bottom')+
+  theme(legend.position = c(.75,.75))+
   scale_linetype_manual(values = c("solid","dashed","twodash"))
   #xlim(0,8)+
   #ylim(0,2000)
@@ -240,67 +240,67 @@ simBiggsR.a<-function(t,y,params){
 
 #running to sp1 dominating before habitat decline
 tstep=1:100
-h1Fun=approxfun(x=tstep,y=c(rep(8,200)))
-h2Fun=approxfun(x=tstep,y=c(rep(8,200)))
-qE1Fun=approxfun(x=tstep,y=c(rep(3,length(tstep))))
-qE2Fun=approxfun(x=tstep,y=c(rep(1,length(tstep))))
-st1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))))
-st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)))
-dFun=approxfun(x=tstep,y=rep(1,length(tstep)))
+h1Fun=approxfun(x=tstep,y=c(rep(8,length(tstep))),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,length(tstep))),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(0,length(tstep))),rule = 2)
+st2Fun=approxfun(x=tstep,y=rep(0,length(tstep)),rule = 2)
+dFun=approxfun(x=tstep,y=rep(1,length(tstep)),rule = 2)
 
-p=c(s1=0.1,m1=0.5,cJ1A1=0.001,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-    s2=0.1,m2=0.5,cJ2A2=0.001,cJ2A1=0.3,cJ2J1=0.003,v2=1)
-y0=c(50000,1000,0,0)
+p=c(s1=0.1,m1=0.1,cJ1A1=0.001,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.1,cJ2A2=0.001,cJ2A1=0.03,cJ2J1=0.003,v2=1)
+y0=c(5000,500,0,0)
 simPre=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
 
 #Fecundity decline -> what will happen if no action taken
 tstep=1:500
-h1Fun=approxfun(x=tstep,y=c(rep(8,500)))
-h2Fun=approxfun(x=tstep,y=c(rep(8,500)))
-qE1Fun=approxfun(x=tstep,y=c(rep(3,500)))
-qE2Fun=approxfun(x=tstep,y=c(rep(1,500)))
-st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,500)))
-dFun=approxfun(x=tstep,y=c(seq(1,0.1,length.out = 100),rep(.1,400)))
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+dFun=approxfun(x=tstep,y=c(seq(1,.01,length.out = 100),rep(.01,400)),rule = 2)
 
-p=c(s1=0.1,m1=0.5,cJ1A1=0.002,cJ1A2=0.5,cJ1J2=0.003,v1=1,
-    s2=0.1,m2=0.5,cJ2A2=0.002,cJ2A1=0.3,cJ2J1=0.003,v2=1)
+p=c(s1=0.1,m1=0.1,cJ1A1=0.002,cJ1A2=0.05,cJ1J2=0.003,v1=1,
+    s2=0.1,m2=0.1,cJ2A2=0.002,cJ2A1=0.03,cJ2J1=0.003,v2=1)
 #y0=simPre[nrow(simPre)-1,2:5]
 sim=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
 
 #stocking delays the transition to sp2
 tstep=1:500
-h1Fun=approxfun(x=tstep,y=c(rep(8,500)))
-h2Fun=approxfun(x=tstep,y=c(rep(8,500)))
-qE1Fun=approxfun(x=tstep,y=c(rep(3,500)))
-qE2Fun=approxfun(x=tstep,y=c(rep(1,500)))
-st1Fun=approxfun(x=tstep,y=c(rep(10,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,500))) 
-dFun=approxfun(x=tstep,y=c(seq(1,0.1,length.out = 100),rep(.1,400)))
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(500,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2) 
+dFun=approxfun(x=tstep,y=c(seq(1,0.01,length.out = 100),rep(.01,400)),rule = 2)
 
 simS=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
 
 #harvesting delays the transition to sp2 - no stocking
 tstep=1:500
-h1Fun=approxfun(x=tstep,y=c(rep(8,500)))
-h2Fun=approxfun(x=tstep,y=c(rep(8,500)))
-qE1Fun=approxfun(x=tstep,y=c(rep(3,500)))
-qE2Fun=approxfun(x=tstep,y=c(rep(1.5,500)))
-st1Fun=approxfun(x=tstep,y=c(rep(0,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,500))) 
-dFun=approxfun(x=tstep,y=c(seq(1,0.1,length.out = 100),rep(.1,400)))
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(0.5,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2) 
+dFun=approxfun(x=tstep,y=c(seq(1,0.01,length.out = 100),rep(.01,400)),rule = 2)
 
 simH=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
 
 #harvesting and stocking delays the transition to sp2
 tstep=1:500
-h1Fun=approxfun(x=tstep,y=c(rep(8,500)))
-h2Fun=approxfun(x=tstep,y=c(rep(8,500)))
-qE1Fun=approxfun(x=tstep,y=c(rep(3,500)))
-qE2Fun=approxfun(x=tstep,y=c(rep(1.5,500)))
-st1Fun=approxfun(x=tstep,y=c(rep(10,500)))
-st2Fun=approxfun(x=tstep,y=c(rep(0,500))) 
-dFun=approxfun(x=tstep,y=c(seq(1,0.1,length.out = 100),rep(.1,400)))
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(0.5,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(500,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2) 
+dFun=approxfun(x=tstep,y=c(seq(1,0.01,length.out = 100),rep(.01,400)),rule = 2)
 
 simB=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
 
@@ -332,28 +332,88 @@ a4=ggplot(data = panA,aes(x=Time,y=Abund,color=sp))+theme_classic()+
   geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
-        axis.title.y = element_blank())
+        axis.title.y = element_blank())+
+  ylim(-1,7000)
 b4=ggplot(data = panB,aes(x=Time,y=Abund,color=sp))+theme_classic()+
   geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text.y = element_blank())
+        axis.text.y = element_blank())+
+  ylim(-1,7000)
 c4=ggplot(data = panC,aes(x=Time,y=Abund,color=sp))+theme_classic()+
   geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
   theme(axis.title.x = element_blank(),
-        axis.title.y = element_blank())
+        axis.title.y = element_blank())+
+  ylim(-1,7000)
 d4=ggplot(data = panD,aes(x=Time,y=Abund,color=sp))+theme_classic()+
   geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text.y = element_blank())
+        axis.text.y = element_blank())+
+  ylim(-1,7000)
 
 fig4=ggarrange(a4,b4,c4,d4,labels = c("A","B","C","D"),common.legend = T,legend = "top",label.x = .8,label.y = .9)
 annotate_figure(fig4,
                 left = text_grob("Adult Abundance", rot = 90),
                 bottom = text_grob("Time"))
 
+## calculating the years of delay in each scenario
+tp=function(x=matin){
+  dat=as.data.frame(x[,1:3]);colnames(dat)=c("time","A1","A2")
+  established = dat$A1[1] > dat$A2[1]
+  comp = dat$A1>dat$A2
+  if(is.finite(min(which(comp != established)))==T){
+    return(min(which(comp != established)))
+  }else{return(NA)}
+}
+
+simTP=tp(sim)
+simHTP=tp(simH)
+simSTP=tp(simS)
+simbTP=tp(simB)
+
+## what would doubling of the stocking or harvest do for delaying the flip?
+#stocking delays the transition to sp2
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(1000,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2) 
+dFun=approxfun(x=tstep,y=c(seq(1,0.01,length.out = 100),rep(.01,400)),rule = 2)
+
+simS=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
+
+#harvesting delays the transition to sp2 - no stocking
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(1,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2) 
+dFun=approxfun(x=tstep,y=c(seq(1,0.01,length.out = 100),rep(.01,400)),rule = 2)
+
+simH=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
+
+#harvesting and stocking delays the transition to sp2
+tstep=1:500
+h1Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+h2Fun=approxfun(x=tstep,y=c(rep(8,500)),rule = 2)
+qE1Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2)
+qE2Fun=approxfun(x=tstep,y=c(rep(1,500)),rule = 2)
+st1Fun=approxfun(x=tstep,y=c(rep(1000,500)),rule = 2)
+st2Fun=approxfun(x=tstep,y=c(rep(0,500)),rule = 2) 
+dFun=approxfun(x=tstep,y=c(seq(1,0.01,length.out = 100),rep(.01,400)),rule = 2)
+
+simB=ode(y=y0,times=tstep,func=simBiggsR.a,parms=p)
+
+DsimTP=tp(sim)
+DsimHTP=tp(simH)
+DsimSTP=tp(simS)
+DsimbTP=tp(simB)
 
 #logged version of the fig
 # a4=ggplot(data = panA,aes(x=Time,y=log(Abund),color=sp))+theme_classic()+
