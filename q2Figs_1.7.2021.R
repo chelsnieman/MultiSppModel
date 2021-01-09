@@ -78,19 +78,21 @@ colnames(panB)=c("qEs","Abund","sp")
 panB$qEs=as.numeric(panB$qEs);panB$Abund=as.numeric(panB$Abund)
 
 a=ggplot(data = panA,aes(x=qEs,y=Abund,color=sp))+theme_classic()+
-  geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
+  geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="",labels=c("Species 1, initially dominant", "Species 2"))+
   theme(axis.title.x = element_blank(),
         axis.text.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 10),
+        legend.position = c(.5,.75))
 a
 b=ggplot(data = panB,aes(x=qEs,y=Abund,color=sp))+theme_classic()+
-  geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="")+
+  geom_line(size=1)+scale_color_manual(values = c("black","grey"),name="",labels=c("Species 1", "Species 2, initially dominant"))+
   theme(axis.title.x = element_blank(),
         axis.title.y = element_blank(),
-        axis.text = element_text(size = 10))
+        axis.text = element_text(size = 10),
+        legend.position = c(.5,.75))
 b
-fig1=ggarrange(a,b,ncol=1,labels = c("A","B"), common.legend = T,legend="top",label.x = 0.9)
+fig1=ggarrange(a,b,ncol=1,labels = c("A","B"), label.x = 0.9)
 annotate_figure(fig1,
                 left = text_grob("Adult Abundance", rot = 90, size=14),
                 bottom = text_grob("Harvest Rate (qE)", size=14))
