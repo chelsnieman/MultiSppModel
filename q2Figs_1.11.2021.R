@@ -355,10 +355,11 @@ d4=ggplot(data = panD,aes(x=Time,y=Abund,color=sp))+theme_classic()+
         axis.text.y = element_blank())+
   ylim(-1,7000)
 
-fig4=ggarrange(a4,b4,c4,d4,labels = c("a","b","c","d"),common.legend = T,legend = "top")
+fig4=ggarrange(a4,b4,c4,d4,labels = c("a","b","c","d"),common.legend = T,legend = "top",hjust = c(-1,1,-1,1))
 annotate_figure(fig4,
                 left = text_grob("Adult Abundance", rot = 90),
                 bottom = text_grob("Time"))
+
 
 ## calculating the years of delay in each scenario
 tp=function(x=matin){
