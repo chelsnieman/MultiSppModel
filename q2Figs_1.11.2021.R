@@ -92,7 +92,7 @@ b=ggplot(data = panB,aes(x=qEs,y=Abund,color=sp))+theme_classic()+
         axis.text = element_text(size = 10),
         legend.position = c(.5,.75))
 #b
-fig1=ggarrange(a,b,ncol=1,labels = c("A","B"), label.x = 0.9)
+fig1=ggarrange(a,b,ncol=1,labels = c("a","b"))
 annotate_figure(fig1,
                 left = text_grob("Adult Abundance", rot = 90, size=14),
                 bottom = text_grob("Harvest Rate (qE)", size=14))
@@ -355,7 +355,7 @@ d4=ggplot(data = panD,aes(x=Time,y=Abund,color=sp))+theme_classic()+
         axis.text.y = element_blank())+
   ylim(-1,7000)
 
-fig4=ggarrange(a4,b4,c4,d4,labels = c("A","B","C","D"),common.legend = T,legend = "top",label.x = .8,label.y = .9)
+fig4=ggarrange(a4,b4,c4,d4,labels = c("a","b","c","d"),common.legend = T,legend = "top")
 annotate_figure(fig4,
                 left = text_grob("Adult Abundance", rot = 90),
                 bottom = text_grob("Time"))
